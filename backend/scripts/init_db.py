@@ -1,7 +1,12 @@
-from database import engine, SessionLocal, Base
-from models import User, Song, MusicType, Post
-from data import songs, users, music_types
 import os
+import sys
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)
+
+from app.core.database import engine, SessionLocal, Base
+from app.models import User, Song, MusicType, Post
+from scripts.data import songs, users, music_types
 
 # BASE_URL = "http://127.0.0.1:8000"
 def init_database():

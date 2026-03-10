@@ -9,8 +9,8 @@ import {
   Button,
   useToast,
 } from '@chakra-ui/react'
-import { API_BASE } from '../config'
-import type { Song } from '../types'
+import { API_BASE, MEDIA_BASE } from '../../../config'
+import type { Song } from '../../../types'
 
 interface ShareLocationState {
   song?: Song
@@ -85,7 +85,7 @@ function Share() {
     )
   }
 
-  const audioSrc = song.url.startsWith('http') ? song.url : `${API_BASE || ''}${song.url}`
+  const audioSrc = song.url.startsWith('http') ? song.url : `${MEDIA_BASE || ''}${song.url}`
 
   return (
     <VStack spacing={6} align="stretch">

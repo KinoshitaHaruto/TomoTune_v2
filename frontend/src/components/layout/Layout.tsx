@@ -1,12 +1,12 @@
 import React, { useRef, useEffect } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { 
-  Box, 
-  Container, 
-  Heading, 
-  Text, 
-  HStack, 
-  IconButton, 
+import {
+  Box,
+  Container,
+  Heading,
+  Text,
+  HStack,
+  IconButton,
   useToast,
   VStack,
   useDisclosure,
@@ -14,7 +14,7 @@ import {
   CloseButton,
 } from '@chakra-ui/react'
 import { FiHome, FiPlus, FiMusic, FiUser, FiMenu } from 'react-icons/fi'
-import { useUser } from '../contexts/UserContext'
+import { useUser } from '../../contexts/UserContext'
 
 const Layout = () => {
   const navigate = useNavigate()
@@ -49,15 +49,15 @@ const Layout = () => {
   return (
     // 全体の背景
     <Box bg="gray.100" minH="100vh" py={10} px={4}>
-    
+
       {/* スマホ枠 (固定) */}
-      <Container 
-        maxW="480px"       
-        bg="white"         
+      <Container
+        maxW="480px"
+        bg="white"
         h="740px"          // 固定高さ（スマホサイズ）
-        borderRadius="2xl" 
-        boxShadow="xl"     
-        p={0}              
+        borderRadius="2xl"
+        boxShadow="xl"
+        p={0}
         overflow="hidden"
         display="flex"
         flexDirection="column"
@@ -95,10 +95,10 @@ const Layout = () => {
         </Box>
 
         {/* コンテンツエリア */}
-        <Box 
+        <Box
           ref={contentRef}
-          flex={1} 
-          overflowY="auto" 
+          flex={1}
+          overflowY="auto"
           p={6}
           // スクロールバーを隠すスタイル
           css={{ '&::-webkit-scrollbar': { display: 'none' } }}

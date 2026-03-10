@@ -12,9 +12,9 @@ import {
   useToast,
 } from '@chakra-ui/react'
 
-import PostCard from '../components/PostCard'
-import { API_BASE } from '../config'
-import type { Post, Comment } from '../types'
+import PostCard from '../../posts/components/PostCard'
+import { API_BASE } from '../../../config'
+import type { Post, Comment } from '../../../types'
 function Home() {
   const navigate = useNavigate()
   const toast = useToast()

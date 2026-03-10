@@ -14,8 +14,8 @@ import unicodedata
 def load_song_metadata():
     """songs.csv を読み込んで、ファイル名をキーにした辞書を作る"""
     metadata = {}
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    csv_path = os.path.join(base_dir, "songs.csv")
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    csv_path = os.path.join(base_dir, "data", "songs.csv")
     
     if not os.path.exists(csv_path):
         print(f"警告: {csv_path} が見つかりません。")
@@ -32,7 +32,7 @@ def load_song_metadata():
 # staticフォルダ内の音楽ファイルをスキャンして曲リストを作成
 def scan_static_files():
     """staticフォルダとCSVを照らし合わせて曲リストを作る"""
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     static_dir = os.path.join(base_dir, "static")
     songs = []
     
@@ -102,8 +102,8 @@ songs = scan_static_files()
 def load_music_types():
     """musicType.csv を読み込んでリストを作る"""
     types = []
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    csv_path = os.path.join(base_dir, "musicType.csv")
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    csv_path = os.path.join(base_dir, "data", "musicType.csv")
     
     if not os.path.exists(csv_path):
         print(f"{csv_path} が見つかりません。")

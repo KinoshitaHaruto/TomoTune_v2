@@ -3,8 +3,8 @@ import { Box, Heading, Text, Stack, Card, CardBody, Divider, Badge, Button, Icon
 import { useNavigate } from 'react-router-dom'
 import { FiX } from 'react-icons/fi'
 import LikeButton from './LikeButton'
-import { API_BASE } from '../config'
-import type { Song } from '../types'
+import { API_BASE, MEDIA_BASE } from '../../../config'
+import type { Song } from '../../../types'
 
 interface MusicCardProps {
   song: Song
@@ -47,21 +47,21 @@ const MusicCard: React.FC<MusicCardProps> = ({ song, isFavorite, onLikeSuccess, 
 
       const data = await res.json()
       console.log('Delete response:', data)
-      
+
       // 削除成功時は常に親コンポーネントに通知（お気に入りから外れた場合）
       if (onRemoveFavorite && !data.is_favorite) {
         await onRemoveFavorite(song.id)
       }
 
-      toast({ 
-        title: 'お気に入りから削除しました', 
+      toast({
+        title: 'お気に入りから削除しました',
         status: 'info',
         duration: 2000,
       })
     } catch (error) {
       console.error('Remove favorite error:', error)
-      toast({ 
-        title: '削除に失敗しました', 
+      toast({
+        title: '削除に失敗しました',
         description: error instanceof Error ? error.message : '不明なエラー',
         status: 'error',
         duration: 3000,
@@ -69,7 +69,7 @@ const MusicCard: React.FC<MusicCardProps> = ({ song, isFavorite, onLikeSuccess, 
     }
   }
 
-  const audioSrc = song.url.startsWith('http') ? song.url : `${API_BASE || ''}${song.url}`
+  const audioSrc = song.url.startsWith('http') ? song.url : `${MEDIA_BASE || ''}${song.url}`
 
   return (
     <Card

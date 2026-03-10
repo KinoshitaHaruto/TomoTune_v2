@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Heading, VStack, HStack, Box, Text, useToast, Circle } from '@chakra-ui/react'
-import { useUser } from '../contexts/UserContext'
-import { API_BASE } from '../config'
+import { useUser } from '../../../contexts/UserContext'
+import { API_BASE } from '../../../config'
 
 interface Answer {
   [key: number]: number // 質問番号 -> 回答（1-7）

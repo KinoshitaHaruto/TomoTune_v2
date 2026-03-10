@@ -10,7 +10,7 @@ import {
   Switch,
 } from '@chakra-ui/react'
 import MusicCard from '../components/MusicCard'
-import { API_BASE } from '../config'
+import { API_BASE } from '../../../config'
 
 type Song = {
   id: number
@@ -75,7 +75,7 @@ function Music() {
   const handleRemoveFavorite = async (songId: number) => {
     // ローカル状態を即座に更新（UIの即時反応のため）
     setFavoriteIds((prev) => prev.filter((id) => id !== songId))
-    
+
     // バックエンドからお気に入りリストを再取得して同期
     if (userId) {
       try {

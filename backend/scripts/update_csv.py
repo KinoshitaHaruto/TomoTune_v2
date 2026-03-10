@@ -1,10 +1,10 @@
 import csv
 from pathlib import Path
 
-# スクリプトのディレクトリを基準にパスを設定
-BASE_DIR = Path(__file__).parent.absolute()
-STATIC_DIR = BASE_DIR / "static"
-CSV_PATH = BASE_DIR / "songs.csv"
+# BASE_DIR is scripts/ directory, so backend is parent
+BACKEND_DIR = Path(__file__).parent.parent.absolute()
+STATIC_DIR = BACKEND_DIR / "static"
+CSV_PATH = BACKEND_DIR / "data" / "songs.csv"
 
 # 今回定義する全パラメータ（CSVのヘッダーになります）
 CSV_HEADERS = [
