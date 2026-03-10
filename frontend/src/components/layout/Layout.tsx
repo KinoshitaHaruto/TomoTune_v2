@@ -15,6 +15,8 @@ import {
 } from '@chakra-ui/react'
 import { FiHome, FiPlus, FiMusic, FiUser, FiMenu } from 'react-icons/fi'
 import { useUser } from '../../contexts/UserContext'
+import { usePlayer } from '../../contexts/PlayerContext'
+import MiniPlayer from '../../features/music/components/MiniPlayer'
 
 const Layout = () => {
   const navigate = useNavigate()
@@ -22,6 +24,7 @@ const Layout = () => {
   const toast = useToast()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { user, logout } = useUser()
+  const { activeSong } = usePlayer()
   const contentRef = useRef<HTMLDivElement>(null)
 
   // ページ遷移時にコンテンツエリアのスクロール位置をリセット
@@ -106,6 +109,13 @@ const Layout = () => {
           {/* outletにpageを差し込む */}
           <Outlet />
         </Box>
+
+        {/* ミニプレイヤー（コンテンツとフッターの間） */}
+        {activeSong && (
+          <Box flexShrink={0}>
+            <MiniPlayer />
+          </Box>
+        )}
 
         {/* フッター (固定) - グラデーション背景 + ナビゲーション */}
         <Box
