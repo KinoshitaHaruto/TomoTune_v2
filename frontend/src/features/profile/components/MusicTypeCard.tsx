@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Box, 
-  Text, 
-  Heading, 
-  VStack, 
-  HStack, 
-  Progress, 
-  Badge, 
-  SimpleGrid, 
-  Card, 
+import {
+  Box,
+  Text,
+  Heading,
+  VStack,
+  HStack,
+  Progress,
+  Badge,
+  SimpleGrid,
+  Card,
   CardBody,
   StackDivider,
   Image
 } from "@chakra-ui/react";
-import { useUser } from "../contexts/UserContext";
-import { User } from "../types";
-import { API_BASE } from "../config";
+import { useUser } from "../../../contexts/UserContext";
+import { User } from "../../../types";
+import { API_BASE, MEDIA_BASE } from "../../../config";
 
 // スコアバーのサブコンポーネント
 const ScoreBar = ({ label, value, color, leftLabel, rightLabel }: { label: string, value: number, color: string, leftLabel: string, rightLabel: string }) => (
@@ -54,11 +54,11 @@ export const MusicTypeCard = ({ user: userOverride }: { user?: User | null }) =>
   // データがある場合
   const { code, name, description } = user.music_type;
   const { VC, MA, PR, HS } = user.scores;
-  
+
   // 画像の読み込み状態を管理
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
-  const imageUrl = `${API_BASE}/type_pictures/${code}.jpg`;
+  const imageUrl = `${MEDIA_BASE}/type_pictures/${code}.jpg`;
 
   // 画像の読み込みをチェック
   useEffect(() => {
@@ -77,16 +77,16 @@ export const MusicTypeCard = ({ user: userOverride }: { user?: User | null }) =>
   }, [code, imageUrl]);
 
   return (
-    <Card 
-      variant="outline" 
-      borderColor="pink.200" 
-      boxShadow="sm" 
+    <Card
+      variant="outline"
+      borderColor="pink.200"
+      boxShadow="sm"
       overflow="hidden"
       bg="white"
     >
       <CardBody>
         <VStack align="stretch" spacing={5} divider={<StackDivider borderColor="gray.100" />}>
-          
+
           {/* タイプ名表示エリア */}
           <Box textAlign="center">
             <Badge colorScheme="pink" variant="subtle" px={2} py={1} borderRadius="md" mb={2}>
@@ -106,10 +106,10 @@ export const MusicTypeCard = ({ user: userOverride }: { user?: User | null }) =>
           {/* タイプ画像表示エリア */}
           <Box textAlign="center">
             {imageLoading ? (
-              <Box 
-                height="200px" 
-                display="flex" 
-                alignItems="center" 
+              <Box
+                height="200px"
+                display="flex"
+                alignItems="center"
                 justifyContent="center"
                 bg="gray.50"
                 borderRadius="md"
@@ -117,10 +117,10 @@ export const MusicTypeCard = ({ user: userOverride }: { user?: User | null }) =>
                 <Text fontSize="sm" color="gray.400">読み込み中...</Text>
               </Box>
             ) : imageError ? (
-              <Box 
-                height="200px" 
-                display="flex" 
-                alignItems="center" 
+              <Box
+                height="200px"
+                display="flex"
+                alignItems="center"
                 justifyContent="center"
                 bg="gray.50"
                 borderRadius="md"
@@ -149,32 +149,32 @@ export const MusicTypeCard = ({ user: userOverride }: { user?: User | null }) =>
               Analysis Details
             </Heading>
             <SimpleGrid columns={1} spacing={6}>
-              <ScoreBar 
-                label="Energy" 
-                value={VC} 
-                color="cyan" 
-                leftLabel="Chill" 
-                rightLabel="Vibe" 
+              <ScoreBar
+                label="Energy"
+                value={VC}
+                color="cyan"
+                leftLabel="Chill"
+                rightLabel="Vibe"
               />
-              <ScoreBar 
-                label="Focus" 
-                value={MA} 
-                color="purple" 
-                leftLabel="Melody" 
-                rightLabel="Atmosphere" 
+              <ScoreBar
+                label="Focus"
+                value={MA}
+                color="purple"
+                leftLabel="Melody"
+                rightLabel="Atmosphere"
               />
-              <ScoreBar 
-                label="Emotion" 
-                value={PR} 
-                color="red" 
-                leftLabel="Precision" 
-                rightLabel="Romance" 
+              <ScoreBar
+                label="Emotion"
+                value={PR}
+                color="red"
+                leftLabel="Precision"
+                rightLabel="Romance"
               />
-              <ScoreBar 
-                label="Texture" 
-                value={HS} 
-                color="orange" 
-                leftLabel="Synth" 
+              <ScoreBar
+                label="Texture"
+                value={HS}
+                color="orange"
+                leftLabel="Synth"
                 rightLabel="Human"
               />
             </SimpleGrid>

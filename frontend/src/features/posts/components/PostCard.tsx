@@ -17,8 +17,8 @@ import {
   IconButton,
 } from '@chakra-ui/react'
 import { BiComment } from 'react-icons/bi'
-import { API_BASE } from '../config'
-import type { Post, Comment } from '../types'
+import { API_BASE, MEDIA_BASE } from '../../../config'
+import type { Post, Comment } from '../../../types'
 
 interface PostCardProps {
   post: Post
@@ -27,7 +27,7 @@ interface PostCardProps {
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post, currentUserId, onOpenComments }) => {
-  const audioSrc = post.song.url.startsWith('http') ? post.song.url : `${API_BASE || ''}${post.song.url}`
+  const audioSrc = post.song.url.startsWith('http') ? post.song.url : `${MEDIA_BASE || ''}${post.song.url}`
   const date = new Date(post.created_at)
   const isMine = currentUserId && post.user && post.user.id === currentUserId
   const commentCount = post.comments ? post.comments.length : 0

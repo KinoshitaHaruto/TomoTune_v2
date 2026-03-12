@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Heading, Input, Text, VStack, useToast } from '@chakra-ui/react'
 
-import { useUser } from '../contexts/UserContext'
+import { useUser } from '../../../contexts/UserContext'
 
 function Login() {
   const [name, setName] = useState("")

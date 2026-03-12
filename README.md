@@ -1,62 +1,99 @@
-# TomoTune (ともチューン)
+# TomoTune（トモチューン）
 
-音楽とSNSを融合したWebアプリケーション。
-ハッカソン用のプロジェクトです。
+## プロジェクト概要
 
-## 🛠 環境構築 (Setup)
+TomoTuneは音楽特化のSNSアプリで、音楽を通じた新たな交流体験を提供することを目標としています。独自のMusic Type診断を取り入れており、ユーザーの音楽的嗜好を可視化することができます。Music Typeによって、初対面でも感性が近いユーザーや相性のいいユーザーを直感的に見つけられたり、既存の友人同士においても友人の意外な音楽的嗜好や、リアルタイムで動的な診断によって気分の変化も発見できます。SNS機能として、楽曲へのコメント投稿やユーザーフォロー機能などを実装しています。
 
-このリポジトリをクローンした後、以下の手順で環境を作ってください。
+## 使用技術
 
-### Backend (Python/FastAPI)
-```bash
-cd backend
-# 仮想環境を作成
-python -m venv venv
+### バックエンド
+- Python 3.x
+- FastAPI
+- SQLAlchemy
+- SQLite
 
-# 仮想環境に入る
-# Mac
-source venv/bin/activate
-# Windows
-.\venv\Scripts\activate
+### フロントエンド
+- React
+- TypeScript
+- Vite
+- Chakra UI
 
-# 必要なライブラリ等のインストール
-pip install -r requirements.txt
-# (pip freeze > requirements.txtによって保存された情報)
+## セットアップ・実行方法
+
+### バックエンドのセットアップ
+
+1. 仮想環境の作成と有効化
+   ```bash
+   cd backend
+   python -m venv venv
+   source venv/bin/activate
+   ```
+
+2. 依存関係のインストール
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. データベースの初期化とデータのロード
+   ```bash
+   python scripts/init_db.py
+   ```
+
+4. 開発環境でのサーバー起動
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+   サーバーはデフォルトで `http://localhost:8000` で起動します。
+
+### フロントエンドのセットアップ
+
+1. 依存関係のインストール
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+2. 開発用サーバーの起動
+   ```bash
+   npm run dev
+   ```
+   サーバーはデフォルトで `http://localhost:5173` で起動します。
+
+## ディレクトリ構成
+
+```text
+.
+├── backend/
+│   ├── app/
+│   │   ├── api/          # APIのプレフィックスルート定義
+│   │   ├── core/         # DB接続などのコア設定
+│   │   ├── crud/         # データベース操作ロジック
+│   │   ├── services/     # 診断などの各種ビジネスロジック
+│   │   ├── models.py     # SQLAlchemyのデータモデル定義
+│   │   ├── schemas.py    # Pydanticのリクエスト・レスポンススキーマ
+│   │   └── main.py       # FastAPIアプリケーションのエントリーポイント
+│   ├── data/             # SQLiteデータベースファイルや初期化用CSV
+│   ├── scripts/          # DB初期化、データ更新等のバッチスクリプト
+│   └── static/           # 音楽ファイルや画像などの静的リソース
+└── frontend/
+    └── src/
+        ├── components/
+        │   └── layout/   # ヘッダーや共通レイアウトコンポーネント
+        ├── features/     # 各機能（ドメイン）ごとのコンポーネントとページ
+        │   ├── auth/     # 認証・ログイン関連
+        │   ├── home/     # ホーム画面・タイムライン関連
+        │   ├── music/    # 楽曲再生関連
+        │   ├── posts/    # 投稿・シェア関連
+        │   └── profile/  # プロフィール表示・診断関連
+        ├── App.tsx       # 画面ルーティング設定
+        ├── main.tsx      # Reactアプリケーションのエントリーポイント
+        ├── config.ts     # APIエンドポイント等の設定ファイル
+        └── types.ts      # TypeScriptの共通型定義
 ```
 
-### frontend (React/ChakraUI)
-```bash
-```bash
-cd frontend
-npm install
-```
+## 環境変数
 
-## How to run
-### backend
-```bash
-cd backend
-source venv/bin/activate
-uvicorn main:app --reload
-```
 
-### frontend
-```bash
-cd frontend
-npm run dev
-```
 
-### ngrokサーバー（開発用）
-```bash
-cd frontend
-npm run build   # 環境の保存
-ngrok http 8000
-```
+## ライセンス
 
-## 🚀 デプロイ
-
-ハッカソンなどで一時的にデプロイする場合は、[DEPLOY.md](./DEPLOY.md) を参照してください。
-Renderを使用することで、ngrokの帯域幅制限を回避できます。
-
-# ログインエラー時
-## backend
-python .\init_db.py

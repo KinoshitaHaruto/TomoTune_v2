@@ -31,9 +31,9 @@ import { FiEdit2, FiCheck } from 'react-icons/fi'
 // @ts-ignore
 import { QRCodeSVG } from 'qrcode.react'
 import { MusicTypeCard } from '../components/MusicTypeCard'
-import { useUser } from '../contexts/UserContext'
-import { API_BASE } from '../config'
-import { User } from '../types'
+import { useUser } from '../../../contexts/UserContext'
+import { API_BASE } from '../../../config'
+import { User } from '../../../types'
 
 function Profile() {
   const [userName, setUserName] = useState('')
@@ -211,9 +211,9 @@ function Profile() {
   // QRペイロード
   const qrPayload = isSelf && userId
     ? JSON.stringify({
-        userId,
-        profileCode,
-      })
+      userId,
+      profileCode,
+    })
     : ''
 
   return (
@@ -290,7 +290,7 @@ function Profile() {
       <Divider />
 
       {/* Music Type セクション */}
-      
+
       <VStack spacing={4} align="stretch" width="100%">
         <MusicTypeCard user={isSelf ? user ?? profileUser : profileUser} />
         {isSelf && !user?.music_type && (

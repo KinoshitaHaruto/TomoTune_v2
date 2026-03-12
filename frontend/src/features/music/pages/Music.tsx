@@ -10,7 +10,8 @@ import {
   Switch,
 } from '@chakra-ui/react'
 import MusicCard from '../components/MusicCard'
-import { API_BASE } from '../config'
+import { API_BASE } from '../../../config'
+import { usePlayer } from '../../../contexts/PlayerContext'
 
 type Song = {
   id: number
@@ -23,6 +24,7 @@ function Music() {
   const [songs, setSongs] = useState<Song[]>([])
   const [favoriteIds, setFavoriteIds] = useState<number[]>([])
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
+  const { setActiveSong } = usePlayer()
   const navigate = useNavigate()
   const toast = useToast()
   const userId = localStorage.getItem('tomo_user_id')
@@ -47,7 +49,7 @@ function Music() {
       })
   }, [])
 
-  // お気に入り曲IDをバックエンドから取得（リロード時にも復元）
+  // お気に入り曲IDをバックエンドから取得
   useEffect(() => {
     if (!userId) return
     fetch(`${API_BASE}/favorites/${userId}`)
@@ -73,10 +75,8 @@ function Music() {
   }
 
   const handleRemoveFavorite = async (songId: number) => {
-    // ローカル状態を即座に更新（UIの即時反応のため）
     setFavoriteIds((prev) => prev.filter((id) => id !== songId))
-    
-    // バックエンドからお気に入りリストを再取得して同期
+
     if (userId) {
       try {
         const res = await fetch(`${API_BASE}/favorites/${userId}`)
@@ -86,8 +86,6 @@ function Music() {
         }
       } catch (err) {
         console.error('お気に入りリストの再取得に失敗:', err)
-        // エラーが発生した場合は、ローカル状態を元に戻す
-        // （ただし、削除は成功している可能性があるので、再取得を試みる）
       }
     }
   }
@@ -135,6 +133,7 @@ function Music() {
               handleLikeSuccess(song.id, total, isMilestone)
             }
             onRemoveFavorite={handleRemoveFavorite}
+            onPlay={(s) => setActiveSong(s)}
           />
         ))
       )}
