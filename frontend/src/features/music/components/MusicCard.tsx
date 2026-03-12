@@ -1,9 +1,8 @@
 import React from 'react'
 import { Box, Heading, Text, Stack, Card, CardBody, Divider, Badge, Button, IconButton, useToast, HStack } from '@chakra-ui/react'
-import { useNavigate } from 'react-router-dom'
 import { FiX } from 'react-icons/fi'
-import LikeButton from './LikeButton'
-import { API_BASE, MEDIA_BASE } from '../../../config'
+import { useNavigate } from 'react-router-dom'
+import { API_BASE } from '../../../config'
 import type { Song } from '../../../types'
 
 interface MusicCardProps {
@@ -11,15 +10,12 @@ interface MusicCardProps {
   isFavorite: boolean
   onLikeSuccess?: (totalLikes: number, isMilestone: boolean) => void
   onRemoveFavorite?: (songId: number) => void
+  onPlay: (song: Song) => void
 }
 
-const MusicCard: React.FC<MusicCardProps> = ({ song, isFavorite, onLikeSuccess, onRemoveFavorite }) => {
+const MusicCard: React.FC<MusicCardProps> = ({ song, isFavorite, onLikeSuccess, onRemoveFavorite, onPlay }) => {
   const navigate = useNavigate()
   const toast = useToast()
-
-  const handleShareClick = () => {
-    navigate('/share', { state: { song } })
-  }
 
   const handleRemoveFavorite = async () => {
     const userId = localStorage.getItem('tomo_user_id')
@@ -29,7 +25,6 @@ const MusicCard: React.FC<MusicCardProps> = ({ song, isFavorite, onLikeSuccess, 
     }
 
     try {
-      console.log('Removing favorite:', { userId, songId: song.id })
       const res = await fetch(`${API_BASE}/likes`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
@@ -46,9 +41,7 @@ const MusicCard: React.FC<MusicCardProps> = ({ song, isFavorite, onLikeSuccess, 
       }
 
       const data = await res.json()
-      console.log('Delete response:', data)
 
-      // 削除成功時は常に親コンポーネントに通知（お気に入りから外れた場合）
       if (onRemoveFavorite && !data.is_favorite) {
         await onRemoveFavorite(song.id)
       }
@@ -68,8 +61,6 @@ const MusicCard: React.FC<MusicCardProps> = ({ song, isFavorite, onLikeSuccess, 
       })
     }
   }
-
-  const audioSrc = song.url.startsWith('http') ? song.url : `${MEDIA_BASE || ''}${song.url}`
 
   return (
     <Card
@@ -112,40 +103,32 @@ const MusicCard: React.FC<MusicCardProps> = ({ song, isFavorite, onLikeSuccess, 
 
           <Divider />
 
-          <Box display="flex" alignItems="center" gap={3}>
-            <Box flex={1}>
-              {song.url ? (
-                <audio
-                  controls
-                  src={audioSrc}
-                  style={{ width: '100%' }}
-                  controlsList="nodownload noplaybackrate"
+          <Box display="flex" alignItems="center" justifyContent="flex-end" gap={2}>
+            {song.url ? (
+              <>
+                <Button
+                  size="sm"
+                  colorScheme="pink"
+                  variant="outline"
+                  onClick={() => navigate('/share', { state: { song } })}
                 >
-                  オーディオ非対応
-                </audio>
-              ) : (
-                <Text color="red.400" fontSize="sm">
-                  ※ 音声ファイルがありません
-                </Text>
-              )}
-            </Box>
-
-            <LikeButton
-              songId={song.id}
-              song={song}
-              ml="auto"
-              onLikeSuccess={(total, milestone) => onLikeSuccess?.(total, milestone)}
-            />
-
-            <Button
-              size="sm"
-              colorScheme="pink"
-              variant="outline"
-              ml={2}
-              onClick={handleShareClick}
-            >
-              投稿
-            </Button>
+                  投稿
+                </Button>
+                <Button
+                  size="sm"
+                  colorScheme="pink"
+                  variant="solid"
+                  leftIcon={<span style={{ fontSize: '14px' }}>▶</span>}
+                  onClick={() => onPlay(song)}
+                >
+                  再生
+                </Button>
+              </>
+            ) : (
+              <Text color="red.400" fontSize="sm">
+                ※ 音声ファイルがありません
+              </Text>
+            )}
           </Box>
         </Stack>
       </CardBody>
