@@ -1,10 +1,13 @@
 import logging
 import os
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.api import songs, users, posts
+load_dotenv()
+
+from app.api import songs, users, posts, spotify
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("uvicorn")
@@ -34,6 +37,7 @@ app.mount("/type_pictures", StaticFiles(directory=TYPE_PICTURES_DIR), name="type
 app.include_router(songs.router, prefix="/api", tags=["Songs & Likes"])
 app.include_router(users.router, prefix="/api", tags=["Users & Diagnosis"])
 app.include_router(posts.router, prefix="/api", tags=["Posts & Comments"])
+app.include_router(spotify.router, prefix="/api", tags=["Spotify"])
 
 # Mount frontend
 if os.path.exists(DIST_DIR):
