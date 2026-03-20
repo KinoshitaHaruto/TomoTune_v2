@@ -4,8 +4,12 @@
 
 TomoTuneは音楽特化のSNSアプリで、音楽を通じた新たな交流体験を提供することを目標としています。独自のMusic Type診断を取り入れており、ユーザーの音楽的嗜好を可視化することができます。Music Typeによって、初対面でも感性が近いユーザーや相性のいいユーザーを直感的に見つけられたり、既存の友人同士においても友人の意外な音楽的嗜好や、リアルタイムで動的な診断によって気分の変化も発見できます。SNS機能として、楽曲へのコメント投稿やユーザーフォロー機能などを実装しています。
 
-## 使用技術
+## URL
+[github](https://github.com/KinoshitaHaruto/TomoTune)
 
+[TomoTune](https://tomotune.onrender.com/)
+
+## 使用技術
 ### バックエンド
 - Python 3.x
 - FastAPI
@@ -92,8 +96,9 @@ TomoTuneは音楽特化のSNSアプリで、音楽を通じた新たな交流体
 ```
 
 ## 環境変数
-
-
+`.env.example` を参考に `backend/.env` を作成してください。    
+Spotify のクレデンシャルは [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) で取得できます。                                                        
 
 ## ライセンス
+
 
