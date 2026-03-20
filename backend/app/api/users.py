@@ -21,6 +21,20 @@ def login(req: schemas.LoginRequest, db: Session = Depends(get_db)):
         logger.info(f"🔙 Login: {user.name} ({user.id})")
     return user
 
+@router.patch("/users/{user_id}/name")
+def update_user_name(user_id: str, req: schemas.UpdateNameRequest, db: Session = Depends(get_db)):
+    user = crud.get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not req.name.strip():
+        raise HTTPException(status_code=400, detail="Name cannot be empty")
+    user.name = req.name.strip()
+    db.commit()
+    db.refresh(user)
+    logger.info(f"✏️ Name Updated: {user.id} -> {user.name}")
+    return {"status": "ok", "name": user.name}
+
+
 @router.post("/diagnosis")
 def save_diagnosis(req: schemas.DiagnosisRequest, db: Session = Depends(get_db)):
     user = crud.get_user_by_id(db, req.user_id)

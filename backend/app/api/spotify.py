@@ -1,14 +1,23 @@
 import os
 import traceback
+import urllib.parse
 import httpx
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
+
+from app.core.database import get_db
+from app import crud
 
 router = APIRouter()
 
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID", "")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET", "")
+SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI", "http://127.0.0.1:8000/api/spotify/callback")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 TOKEN_URL = "https://accounts.spotify.com/api/token"
 SEARCH_URL = "https://api.spotify.com/v1/search"
+AUTH_URL = "https://accounts.spotify.com/authorize"
 
 
 async def get_access_token() -> str:
@@ -25,6 +34,68 @@ async def get_access_token() -> str:
         if res.status_code != 200:
             raise HTTPException(status_code=502, detail="Failed to get Spotify token")
         return res.json()["access_token"]
+
+
+@router.get("/spotify/login")
+def spotify_login():
+    """SpotifyのOAuth認証ページにリダイレクト"""
+    params = {
+        "client_id": SPOTIFY_CLIENT_ID,
+        "response_type": "code",
+        "redirect_uri": SPOTIFY_REDIRECT_URI,
+        "scope": "streaming user-read-email user-read-private user-modify-playback-state",
+    }
+    url = f"{AUTH_URL}?{urllib.parse.urlencode(params)}"
+    return RedirectResponse(url)
+
+
+@router.get("/spotify/callback")
+async def spotify_callback(code: str = Query(...), db: Session = Depends(get_db)):
+    """SpotifyのOAuthコールバック: トークン取得 → ユーザー作成/取得 → フロントにリダイレクト"""
+    # 1. 認可コードをトークンに交換
+    async with httpx.AsyncClient() as client:
+        token_res = await client.post(
+            TOKEN_URL,
+            data={
+                "grant_type": "authorization_code",
+                "code": code,
+                "redirect_uri": SPOTIFY_REDIRECT_URI,
+            },
+            auth=(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET),
+        )
+        if token_res.status_code != 200:
+            return RedirectResponse(f"{FRONTEND_URL}/login?error=token_exchange_failed")
+        token_data = token_res.json()
+
+        access_token = token_data["access_token"]
+        refresh_token = token_data["refresh_token"]
+        expires_in = token_data["expires_in"]
+
+        # 2. Spotifyユーザー情報取得
+        me_res = await client.get(
+            "https://api.spotify.com/v1/me",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        if me_res.status_code != 200:
+            return RedirectResponse(f"{FRONTEND_URL}/login?error=user_fetch_failed")
+        me_data = me_res.json()
+
+    spotify_id = me_data["id"]
+    display_name = me_data.get("display_name") or f"Spotify_{spotify_id[:8]}"
+
+    # 3. DBでユーザーを検索または作成
+    user = crud.get_user_by_spotify_id(db, spotify_id)
+    if not user:
+        user = crud.create_user(db, name=display_name, spotify_id=spotify_id)
+
+    # 4. フロントエンドにリダイレクト（トークン + user_id）
+    params = urllib.parse.urlencode({
+        "user_id": user.id,
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "expires_in": expires_in,
+    })
+    return RedirectResponse(f"{FRONTEND_URL}/login?{params}")
 
 
 @router.post("/spotify/refresh")

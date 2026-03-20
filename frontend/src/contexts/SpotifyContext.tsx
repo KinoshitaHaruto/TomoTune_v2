@@ -20,6 +20,7 @@ interface SpotifyContextType {
   // 認証状態
   isConnected: boolean
   isPremium: boolean
+  displayName: string | null
   accessToken: string | null
   login: () => void
   logout: () => void
@@ -33,6 +34,7 @@ interface SpotifyContextType {
 const SpotifyContext = createContext<SpotifyContextType>({
   isConnected: false,
   isPremium: false,
+  displayName: null,
   accessToken: null,
   login: () => {},
   logout: () => {},
@@ -47,6 +49,7 @@ export const SpotifyProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [accessToken, setAccessToken] = useState<string | null>(null)
   const [refreshToken, setRefreshToken] = useState<string | null>(null)
   const [isPremium, setIsPremium] = useState(false)
+  const [displayName, setDisplayName] = useState<string | null>(null)
 
   // Web Playback SDK
   const [isPlayerReady, setIsPlayerReady] = useState(false)
@@ -74,6 +77,7 @@ export const SpotifyProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (!res.ok) return
       const data = await res.json()
       setIsPremium(data.is_premium)
+      setDisplayName(data.display_name || null)
     } catch {
       setIsPremium(false)
     }
@@ -215,6 +219,7 @@ export const SpotifyProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setAccessToken(null)
     setRefreshToken(null)
     setIsPremium(false)
+    setDisplayName(null)
     setIsPlayerReady(false)
     setCurrentTrackId(null)
     setIsPlaying(false)
@@ -225,6 +230,7 @@ export const SpotifyProvider: React.FC<{ children: React.ReactNode }> = ({ child
     <SpotifyContext.Provider value={{
       isConnected: !!accessToken,
       isPremium,
+      displayName,
       accessToken,
       login,
       logout,

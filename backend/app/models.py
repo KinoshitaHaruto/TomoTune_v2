@@ -9,6 +9,7 @@ class User(Base):
 
     id = Column(String, primary_key=True, index=True)   # UUIDを使うのでString型
     name = Column(String, index=True)
+    spotify_id = Column(String, nullable=True, unique=True, index=True)  # Spotify連携ユーザー用
 
     # MBTI スコア (0.0 〜 1.0)
     # 初期値は 0.5

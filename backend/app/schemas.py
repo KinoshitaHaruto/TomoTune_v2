@@ -29,3 +29,6 @@ class DiagnosisRequest(BaseModel):
     score_ma: float
     score_pr: float
     score_hs: float
+
+class UpdateNameRequest(BaseModel):
+    name: str
