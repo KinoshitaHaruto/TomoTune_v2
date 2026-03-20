@@ -46,6 +46,23 @@ async def spotify_refresh_token(refresh_token: str = Query(...)):
     return {"access_token": data["access_token"], "expires_in": data["expires_in"]}
 
 
+@router.get("/spotify/me")
+async def spotify_me(access_token: str = Query(...)):
+    """ログイン中のSpotifyユーザー情報を取得（Premium判定用）"""
+    async with httpx.AsyncClient() as client:
+        res = await client.get(
+            "https://api.spotify.com/v1/me",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        if res.status_code != 200:
+            raise HTTPException(status_code=502, detail="Failed to get Spotify user info")
+        data = res.json()
+    return {
+        "display_name": data.get("display_name", ""),
+        "is_premium": data.get("product") == "premium",
+    }
+
+
 @router.get("/spotify/search")
 async def search_spotify(q: str = Query(..., description="検索キーワード"), limit: int = 10):
     """Spotifyで曲を検索する（Client Credentials Flow）"""

@@ -4,17 +4,20 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { BrowserRouter } from 'react-router-dom'
 import { UserProvider } from './contexts/UserContext'
 import { PlayerProvider } from './contexts/PlayerContext'
+import { SpotifyProvider } from './contexts/SpotifyContext'
 import App from './App.tsx'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ChakraProvider>
       <UserProvider>
-        <PlayerProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </PlayerProvider>
+        <SpotifyProvider>
+          <PlayerProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </PlayerProvider>
+        </SpotifyProvider>
       </UserProvider>
     </ChakraProvider>
   </React.StrictMode>,
