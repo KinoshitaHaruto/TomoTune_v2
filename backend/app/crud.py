@@ -16,6 +16,26 @@ def get_song_by_id(db: Session, song_id: int):
     """IDで曲を探す"""
     return db.query(Song).filter(Song.id == song_id).first()
 
+def get_or_create_song_from_spotify(
+    db: Session, track_id: str, title: str, artist: str,
+    spotify_url: str, album_image: Optional[str]
+) -> Song:
+    """Spotify曲をDBに保存（同じtrack_idがあれば既存を返す）"""
+    song = db.query(Song).filter(Song.spotify_track_id == track_id).first()
+    if song:
+        return song
+    new_song = Song(
+        title=title,
+        artist=artist,
+        url=spotify_url,
+        spotify_track_id=track_id,
+        album_image=album_image,
+    )
+    db.add(new_song)
+    db.commit()
+    db.refresh(new_song)
+    return new_song
+
 # --- ユーザーの操作 ---
 # 名前からユーザーを探す
 def get_user_by_name(db: Session, name: str):

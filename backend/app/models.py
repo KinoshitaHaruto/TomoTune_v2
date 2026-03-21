@@ -65,10 +65,14 @@ class Song(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     artist = Column(String)
-    url = Column(String) # mp3ファイルのパス
+    url = Column(String, nullable=True) # mp3ファイルのパス（Spotify曲はnull可）
 
     # パラメータを保存する列 (JSON文字列として入れる)
     parameters = Column(String, nullable=True)
+
+    # Spotify連携用
+    spotify_track_id = Column(String, nullable=True, unique=True, index=True)
+    album_image = Column(String, nullable=True)
 
     # リレーション: 曲もたくさんの「いいねログ」を持つ
     like_logs = relationship("LikeLog", back_populates="song")

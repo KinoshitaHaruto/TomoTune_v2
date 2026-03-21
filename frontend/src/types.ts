@@ -33,6 +33,8 @@ export interface Song {
   artist: string;
   url: string;
   parameters?: string;
+  spotify_track_id?: string | null;
+  album_image?: string | null;
 }
 
 export interface SpotifyTrack {
