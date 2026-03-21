@@ -23,7 +23,9 @@ lerna-debug.log*
 # --- Claude Code ---
 .claude/settings.local.json
 CLAUDE.md
-Task.md
+
+# --- Private docs ---
+docs/private/
 
 # --- Python (Backend) ---
 __pycache__/

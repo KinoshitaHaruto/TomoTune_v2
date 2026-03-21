@@ -188,6 +188,38 @@ async def get_top_tracks(access_token: str = Query(...), limit: int = 20):
     return {"tracks": [_format_track(t) for t in items], "type": "top"}
 
 
+@router.get("/spotify/audio-features/{track_id}")
+async def get_audio_features(track_id: str, access_token: str = Query(...)):
+    """SpotifyのAudio Featuresを取得する"""
+    async with httpx.AsyncClient() as client:
+        res = await client.get(
+            f"https://api.spotify.com/v1/audio-features/{track_id}",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        print(f"[audio-features] track_id={track_id} status={res.status_code}")
+        if res.status_code != 200:
+            print(f"[audio-features] body={res.text}")
+            raise HTTPException(status_code=res.status_code, detail=f"Failed to get audio features: {res.text}")
+        data = res.json()
+
+    return {
+        "track_id": track_id,
+        "valence": data.get("valence"),
+        "energy": data.get("energy"),
+        "danceability": data.get("danceability"),
+        "acousticness": data.get("acousticness"),
+        "instrumentalness": data.get("instrumentalness"),
+        "speechiness": data.get("speechiness"),
+        "liveness": data.get("liveness"),
+        "loudness": data.get("loudness"),
+        "tempo": data.get("tempo"),
+        "key": data.get("key"),
+        "mode": data.get("mode"),
+        "time_signature": data.get("time_signature"),
+        "duration_ms": data.get("duration_ms"),
+    }
+
+
 @router.get("/spotify/search")
 async def search_spotify(q: str = Query(..., description="検索キーワード"), limit: int = 10):
     """Spotifyで曲を検索する（Client Credentials Flow）"""
