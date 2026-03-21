@@ -43,7 +43,7 @@ def spotify_login():
         "client_id": SPOTIFY_CLIENT_ID,
         "response_type": "code",
         "redirect_uri": SPOTIFY_REDIRECT_URI,
-        "scope": "streaming user-read-email user-read-private user-modify-playback-state",
+        "scope": "streaming user-read-email user-read-private user-modify-playback-state user-top-read",
     }
     url = f"{AUTH_URL}?{urllib.parse.urlencode(params)}"
     return RedirectResponse(url)
@@ -134,6 +134,60 @@ async def spotify_me(access_token: str = Query(...)):
     }
 
 
+def _format_track(track: dict) -> dict:
+    return {
+        "id": track["id"],
+        "title": track["name"],
+        "artist": ", ".join(a["name"] for a in track["artists"]),
+        "album": track["album"]["name"],
+        "album_image": track["album"]["images"][0]["url"] if track["album"]["images"] else None,
+        "spotify_url": track["external_urls"]["spotify"],
+        "duration_ms": track["duration_ms"],
+        "preview_url": track.get("preview_url"),
+    }
+
+
+async def _get_popular_tracks() -> dict:
+    """Client Credentials で人気曲を取得（フォールバック）"""
+    token = await get_access_token()
+    async with httpx.AsyncClient() as client:
+        res = await client.get(
+            SEARCH_URL,
+            params={"q": "Ado OR YOASOBI OR Vaundy", "type": "track", "limit": 10, "market": "JP"},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        print(f"[top-tracks fallback] status={res.status_code}")
+        if res.status_code != 200:
+            print(f"[top-tracks fallback] body={res.text}")
+            raise HTTPException(status_code=502, detail="Failed to get popular tracks")
+        tracks = res.json()["tracks"]["items"]
+    return {"tracks": [_format_track(t) for t in tracks], "type": "popular"}
+
+
+@router.get("/spotify/top-tracks")
+async def get_top_tracks(access_token: str = Query(...), limit: int = 20):
+    """ログイン済みユーザーのトップトラックを取得（user-top-read スコープが必要）"""
+    async with httpx.AsyncClient() as client:
+        res = await client.get(
+            "https://api.spotify.com/v1/me/top/tracks",
+            params={"time_range": "medium_term", "limit": limit},
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        print(f"[top-tracks] status={res.status_code}")
+
+        if res.status_code != 200:
+            # スコープ不足など → 人気曲にフォールバック
+            print(f"[top-tracks] body={res.text}")
+            return await _get_popular_tracks()
+
+        items = res.json().get("items", [])
+        if not items:
+            # リスニング履歴なし → 人気曲にフォールバック
+            return await _get_popular_tracks()
+
+    return {"tracks": [_format_track(t) for t in items], "type": "top"}
+
+
 @router.get("/spotify/search")
 async def search_spotify(q: str = Query(..., description="検索キーワード"), limit: int = 10):
     """Spotifyで曲を検索する（Client Credentials Flow）"""
@@ -152,19 +206,7 @@ async def search_spotify(q: str = Query(..., description="検索キーワード"
 
             tracks = res.json()["tracks"]["items"]
 
-        results = []
-        for track in tracks:
-            results.append({
-                "id": track["id"],
-                "title": track["name"],
-                "artist": ", ".join(a["name"] for a in track["artists"]),
-                "album": track["album"]["name"],
-                "album_image": track["album"]["images"][0]["url"] if track["album"]["images"] else None,
-                "spotify_url": track["external_urls"]["spotify"],
-                "duration_ms": track["duration_ms"],
-            })
-
-        return {"tracks": results}
+        return {"tracks": [_format_track(t) for t in tracks]}
     except HTTPException:
         raise
     except Exception as e:
