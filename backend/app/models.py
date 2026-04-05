@@ -27,6 +27,15 @@ class User(Base):
     # CSVの acousticness が高いほど「生音」と解釈
     score_hs = Column(Float, default=0.5) 
 
+    # カルマンフィルター用: σ²（不確実性）、デフォルト0.25
+    var_vc = Column(Float, default=0.25)
+    var_ma = Column(Float, default=0.25)
+    var_pr = Column(Float, default=0.25)
+    var_hs = Column(Float, default=0.25)
+
+    # 時系列減衰の起点（最後にいいねした日時）
+    last_liked_at = Column(DateTime, nullable=True)
+
     # 診断結果のタイプコード
     music_type_code = Column(String, ForeignKey("music_types.code"), nullable=True)
 
@@ -93,6 +102,9 @@ class LikeLog(Base):
     
     # いつ (初期値は現在時刻)
     timestamp = Column(DateTime, default=datetime.now)
+
+    # 特徴量取得元: "reccobeats" / "genre_fallback" / "local" / "no_update"
+    observation_source = Column(String, nullable=True)
 
     # リレーション設定
     user = relationship("User", back_populates="like_logs")
