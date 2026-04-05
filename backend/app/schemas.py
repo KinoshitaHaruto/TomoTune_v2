@@ -12,6 +12,15 @@ class PostCreateRequest(BaseModel):
     song_id: int
     comment: str
 
+class SpotifyPostCreateRequest(BaseModel):
+    user_id: str
+    comment: str
+    spotify_track_id: str
+    title: str
+    artist: str
+    spotify_url: str
+    album_image: str | None = None
+
 class CommentCreateRequest(BaseModel):
     user_id: str
     content: str
@@ -29,3 +38,6 @@ class DiagnosisRequest(BaseModel):
     score_ma: float
     score_pr: float
     score_hs: float
+
+class UpdateNameRequest(BaseModel):
+    name: str

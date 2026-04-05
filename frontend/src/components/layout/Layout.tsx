@@ -24,7 +24,7 @@ const Layout = () => {
   const toast = useToast()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { user, logout } = useUser()
-  const { activeSong } = usePlayer()
+  const { activeSong, activeSpotifyTrack } = usePlayer()
   const contentRef = useRef<HTMLDivElement>(null)
 
   // ページ遷移時にコンテンツエリアのスクロール位置をリセット
@@ -111,7 +111,7 @@ const Layout = () => {
         </Box>
 
         {/* ミニプレイヤー（コンテンツとフッターの間） */}
-        {activeSong && (
+        {(activeSong || activeSpotifyTrack) && (
           <Box flexShrink={0}>
             <MiniPlayer />
           </Box>
@@ -242,7 +242,10 @@ const Layout = () => {
               <Box width="100%">
                 <Heading size="sm" mb={1}>クレジット</Heading>
                 <Text fontSize="sm" color="gray.600">
-                  音楽：BGMer (http://bgmer.net)
+                  フリー音源：BGMer (http://bgmer.net)
+                </Text>
+                <Text fontSize="sm" color="gray.600" mt={1}>
+                  音楽データ：Spotify API (https://spotify.com)
                 </Text>
               </Box>
             </VStack>

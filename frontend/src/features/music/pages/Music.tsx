@@ -8,10 +8,14 @@ import {
   useToast,
   HStack,
   Switch,
+  Button,
 } from '@chakra-ui/react'
+import { FiLogIn } from 'react-icons/fi'
 import MusicCard from '../components/MusicCard'
+import SpotifySection from '../components/SpotifySection'
 import { API_BASE } from '../../../config'
 import { usePlayer } from '../../../contexts/PlayerContext'
+import { useSpotify } from '../../../contexts/SpotifyContext'
 
 type Song = {
   id: number
@@ -25,6 +29,7 @@ function Music() {
   const [favoriteIds, setFavoriteIds] = useState<number[]>([])
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
   const { setActiveSong } = usePlayer()
+  const { isConnected, login } = useSpotify()
   const navigate = useNavigate()
   const toast = useToast()
   const userId = localStorage.getItem('tomo_user_id')
@@ -94,6 +99,17 @@ function Music() {
     ? songs.filter((song) => favoriteIds.includes(song.id))
     : songs
 
+  if (isConnected) {
+    return (
+      <VStack spacing={4} align="stretch">
+        <HStack justify="space-between" align="center">
+          <Heading color="green.500" size="lg">音楽</Heading>
+        </HStack>
+        <SpotifySection />
+      </VStack>
+    )
+  }
+
   return (
     <VStack spacing={4} align="stretch">
       <HStack justify="space-between" align="center">
@@ -111,6 +127,22 @@ function Music() {
           />
         </HStack>
       </HStack>
+
+      <Box
+        p={4}
+        borderRadius="lg"
+        border="1px dashed"
+        borderColor="green.200"
+        bg="green.50"
+        textAlign="center"
+      >
+        <Text color="gray.600" fontSize="sm" mb={2}>
+          Spotifyと連携すると、あなた好みのおすすめ曲が表示されます
+        </Text>
+        <Button size="sm" colorScheme="green" leftIcon={<FiLogIn />} onClick={login}>
+          Spotifyと連携する
+        </Button>
+      </Box>
 
       {displayedSongs.length === 0 ? (
         <Box textAlign="center" py={10}>

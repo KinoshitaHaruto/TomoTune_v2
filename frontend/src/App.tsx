@@ -10,38 +10,39 @@ import Share from './features/posts/pages/Share'
 import Music from './features/music/pages/Music'
 import Profile from './features/profile/pages/Profile'
 import Follow from './features/profile/pages/Follow'
+import SpotifySearch from './features/spotify/SpotifySearch'
 
 
 function App() {
     const toast = useToast()
 
     useEffect(() => {
-    const checkTime = () => {
-        const now = new Date()
-        const hour = now.getHours()
-        const minute = now.getMinutes()
-        const second = now.getSeconds()
+        const checkTime = () => {
+            const now = new Date()
+            const hour = now.getHours()
+            const minute = now.getMinutes()
+            const second = now.getSeconds()
 
-        if ((hour === 8 && minute === 0 && second === 0) || (hour === 13 && minute === 0 && second === 0) || (hour === 18 && minute === 0 && second === 0)  /*|| (hour === 0 && minute === 35 && second === 0)*/) {
-            toast({
-                title: "投稿の時間です！",
-                description: "音楽をシェアしましょう 🎵",
-                status: "info",
-                duration: 10000,
-                isClosable: true,
-            })
+            if ((hour === 8 && minute === 0 && second === 0) || (hour === 13 && minute === 0 && second === 0) || (hour === 18 && minute === 0 && second === 0)  /*|| (hour === 0 && minute === 35 && second === 0)*/) {
+                toast({
+                    title: "投稿の時間です！",
+                    description: "音楽をシェアしましょう 🎵",
+                    status: "info",
+                    duration: 10000,
+                    isClosable: true,
+                })
+            }
         }
-    }
 
-    // 1分ごとに時刻チェック
-    const interval = setInterval(checkTime, 1000)
-    return () => clearInterval(interval)
+        // 1分ごとに時刻チェック
+        const interval = setInterval(checkTime, 1000)
+        return () => clearInterval(interval)
     }, [toast])
 
     return (
         <Routes>
             <Route element={<Layout />}>
-            {/* Layoutで囲む
+                {/* Layoutで囲む
                 path="/" 以下の全てのページに Layoutを適用
             */}
                 <Route path="/" element={<Home />} />
@@ -52,9 +53,10 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/profile/:userId" element={<Profile />} />
                 <Route path="/follow" element={<Follow />} />
-        </Route>
-            
-    
+                <Route path="/spotify" element={<SpotifySearch />} />
+            </Route>
+
+
         </Routes>
     )
 }

@@ -5,6 +5,7 @@ import { API_BASE } from "../config";
 interface UserContextType {
   user: User | null;
   login: (name: string) => Promise<User | null>;
+  loginWithId: (userId: string) => Promise<User | null>;
   logout: () => void;
   refreshUser: () => Promise<void>;
   isLoading: boolean;
@@ -82,6 +83,15 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const loginWithId = async (userId: string): Promise<User | null> => {
+    localStorage.setItem("tomo_user_id", userId);
+    const fetched = await fetchUser(userId);
+    if (fetched?.name) {
+      localStorage.setItem("tomo_user_name", fetched.name);
+    }
+    return fetched ?? null;
+  };
+
   const logout = () => {
     localStorage.removeItem("tomo_user_id");
     localStorage.removeItem("tomo_user_name");
@@ -101,6 +111,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const value = {
     user,
     login,
+    loginWithId,
     logout,
     refreshUser,
     isLoading
