@@ -73,12 +73,12 @@ def get_test_user(db: Session):
 
 # --- ❤️の操作 ---
 
-def create_like(db: Session, user_id: str, song_id: int):
-    """ハートログをDBに保存する"""
+def create_like(db: Session, user_id: str, song_id: int, observation_source: str | None = None):
     new_like = LikeLog(
         user_id=user_id,
         song_id=song_id,
-        timestamp=datetime.now()
+        timestamp=datetime.now(),
+        observation_source=observation_source,
     )
     db.add(new_like)
     db.commit()

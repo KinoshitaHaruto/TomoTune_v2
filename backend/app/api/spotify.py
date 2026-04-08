@@ -139,6 +139,7 @@ def _format_track(track: dict) -> dict:
         "id": track["id"],
         "title": track["name"],
         "artist": ", ".join(a["name"] for a in track["artists"]),
+        "artist_id": track["artists"][0]["id"] if track["artists"] else None,
         "album": track["album"]["name"],
         "album_image": track["album"]["images"][0]["url"] if track["album"]["images"] else None,
         "spotify_url": track["external_urls"]["spotify"],
