@@ -13,13 +13,15 @@ import {
   VStack,
   Button,
   Image,
+  useToast,
 } from '@chakra-ui/react'
 import { FiPlay, FiPause, FiX, FiChevronDown, FiChevronUp, FiExternalLink } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import LikeButton from './LikeButton'
 import { usePlayer } from '../../../contexts/PlayerContext'
 import { useSpotify } from '../../../contexts/SpotifyContext'
-import { MEDIA_BASE } from '../../../config'
+import { useUser } from '../../../contexts/UserContext'
+import { API_BASE, MEDIA_BASE } from '../../../config'
 
 interface MiniPlayerProps {
   onLikeSuccess?: (total: number, isMilestone: boolean) => void
@@ -27,8 +29,10 @@ interface MiniPlayerProps {
 
 const MiniPlayer: React.FC<MiniPlayerProps> = ({ onLikeSuccess }) => {
   const { activeSong: song, setActiveSong, activeSpotifyTrack, setActiveSpotifyTrack } = usePlayer()
-  const { currentTrackId, isPlaying: spotifyIsPlaying, playTrack, isPremium } = useSpotify()
+  const { currentTrackId, isPlaying: spotifyIsPlaying, playTrack, stopTrack, isPremium, accessToken } = useSpotify()
+  const { user, refreshUser } = useUser()
   const navigate = useNavigate()
+  const toast = useToast()
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -36,6 +40,63 @@ const MiniPlayer: React.FC<MiniPlayerProps> = ({ onLikeSuccess }) => {
   const [duration, setDuration] = useState(0)
   const [isMinimized, setIsMinimized] = useState(false)
   const [spotifyHearts, setSpotifyHearts] = useState<{ id: number }[]>([])
+
+  const handleSpotifyLike = async () => {
+    if (!activeSpotifyTrack) return
+
+    const id = Date.now()
+    setSpotifyHearts((prev) => [...prev, { id }])
+    setTimeout(() => setSpotifyHearts((prev) => prev.filter((h) => h.id !== id)), 1000)
+
+    const userId = user?.id || localStorage.getItem('tomo_user_id')
+    if (!userId) return
+
+    try {
+      const songRes = await fetch(`${API_BASE}/songs/spotify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          spotify_track_id: activeSpotifyTrack.id,
+          title: activeSpotifyTrack.title,
+          artist: activeSpotifyTrack.artist,
+          spotify_url: activeSpotifyTrack.spotify_url,
+          album_image: activeSpotifyTrack.album_image,
+        }),
+      })
+      if (!songRes.ok) throw new Error('song registration failed')
+      const { song_id } = await songRes.json()
+
+      const likeRes = await fetch(`${API_BASE}/likes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          song_id,
+          user_id: userId,
+          access_token: accessToken,
+          spotify_artist_id: activeSpotifyTrack.artist_id,
+        }),
+      })
+      if (!likeRes.ok) throw new Error('like failed')
+
+      const data = await likeRes.json()
+      const oldType = user?.music_type?.code
+      await refreshUser()
+
+      if (oldType && data.user_music_type && oldType !== data.user_music_type) {
+        toast({
+          title: 'Music Type Updated!',
+          description: 'あなたのMusic Typeが変化しました！プロフィールをチェック！',
+          status: 'info',
+          duration: 5000,
+          isClosable: true,
+          position: 'top',
+        })
+      }
+    } catch (e) {
+      console.error('Like error:', e)
+      toast({ title: 'エラーが発生しました', status: 'error', duration: 2000 })
+    }
+  }
 
   const isSpotifyMode = !!activeSpotifyTrack
 
@@ -51,6 +112,7 @@ const MiniPlayer: React.FC<MiniPlayerProps> = ({ onLikeSuccess }) => {
     : isPlaying
 
   const onClose = () => {
+    if (isSpotifyMode) stopTrack()
     setActiveSong(null)
     setActiveSpotifyTrack(null)
   }
@@ -184,11 +246,7 @@ const MiniPlayer: React.FC<MiniPlayerProps> = ({ onLikeSuccess }) => {
                         isRound size="sm"
                         bg="pink.50" color="pink.400"
                         _hover={{ bg: 'pink.100' }}
-                        onClick={() => {
-                          const id = Date.now()
-                          setSpotifyHearts((prev) => [...prev, { id }])
-                          setTimeout(() => setSpotifyHearts((prev) => prev.filter((h) => h.id !== id)), 1000)
-                        }}
+                        onClick={handleSpotifyLike}
                       />
                     </motion.div>
                   </Box>
