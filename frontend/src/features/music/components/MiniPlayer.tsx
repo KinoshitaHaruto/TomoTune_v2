@@ -83,14 +83,17 @@ const MiniPlayer: React.FC<MiniPlayerProps> = ({ onLikeSuccess }) => {
       await refreshUser()
 
       if (oldType && data.user_music_type && oldType !== data.user_music_type) {
-        toast({
-          title: 'Music Type Updated!',
-          description: 'あなたのMusic Typeが変化しました！プロフィールをチェック！',
-          status: 'info',
-          duration: 5000,
-          isClosable: true,
-          position: 'top',
-        })
+        if (!toast.isActive('music-type-updated')) {
+          toast({
+            id: 'music-type-updated',
+            title: 'Music Type Updated!',
+            description: 'あなたのMusic Typeが変化しました！プロフィールをチェック！',
+            status: 'info',
+            duration: 5000,
+            isClosable: true,
+            position: 'top',
+          })
+        }
       }
     } catch (e) {
       console.error('Like error:', e)

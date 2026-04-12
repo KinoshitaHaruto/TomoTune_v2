@@ -1,25 +1,36 @@
 from datetime import datetime
 
 Q                = 0.001
-R_RECCOBEATS     = 0.05
-R_LOCAL          = 0.05
-R_GENRE_FALLBACK = 0.20
+R_RECCOBEATS     = 0.20
+R_LOCAL          = 0.15
+R_GENRE_FALLBACK = 0.40
+
+# P_pred の上限。これにより K ≤ VAR_MAX / (VAR_MAX + R) が保証される
+# R_RECCOBEATS=0.20 のとき K_max = 0.01 / 0.21 ≈ 0.048（1回で最大約5%変化）
+VAR_MAX = 0.01
+
+
+def _get(features: dict, key: str, default: float) -> float:
+    v = features.get(key)
+    return float(v) if v is not None else default
 
 
 def _observation(features: dict) -> tuple[float, float, float, float]:
-    valence          = float(features.get("valence",          0.5))
-    danceability     = float(features.get("danceability",     0.5))
-    energy           = float(features.get("energy",           0.5))
-    tempo            = float(features.get("tempo",            120))
-    instrumentalness = float(features.get("instrumentalness", 0.0))
-    acousticness     = float(features.get("acousticness",     0.0))
+    valence          = _get(features, "valence",          0.5)
+    danceability     = _get(features, "danceability",     0.5)
+    energy           = _get(features, "energy",           0.5)
+    tempo            = _get(features, "tempo",            120.0)
+    instrumentalness = _get(features, "instrumentalness", 0.0)
+    acousticness     = _get(features, "acousticness",     0.0)
+    liveness         = _get(features, "liveness",         0.1)
 
     tempo_norm = max(0.0, min(1.0, (tempo - 60) / 140))
 
     z_vc = 0.7 * valence + 0.3 * danceability
     z_pr = 0.7 * energy  + 0.3 * tempo_norm
     z_ma = instrumentalness
-    z_hs = acousticness
+    # liveness（ライブ感）を混ぜることで acousticness=0 の曲でも軸が動く余地を作る
+    z_hs = 0.7 * acousticness + 0.3 * liveness
 
     return z_vc, z_ma, z_pr, z_hs
 
@@ -31,7 +42,7 @@ def _elapsed_days(last_liked_at, now: datetime) -> int:
 
 
 def _kalman_update(score: float, var: float, z: float, R: float, days: int) -> tuple[float, float]:
-    P_pred    = var + Q * max(days, 1)  # 最低1日分のドリフト
+    P_pred    = min(var + Q * max(days, 1), VAR_MAX)  # 上限キャップで K を抑制
     K         = P_pred / (P_pred + R)
     score_new = score + K * (z - score)
     var_new   = (1 - K) * P_pred

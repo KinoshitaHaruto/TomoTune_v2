@@ -113,14 +113,17 @@ const LikeButton = ({ songId, song, onLikeSuccess, ...props }: LikeButtonProps) 
             if (oldType && newType && oldType !== newType && lastNotifiedTypeRef.current !== newType) {
                 // タイプが変わった場合（かつ前回と同じタイプへの変化トーストをまだ出していない場合）
                 lastNotifiedTypeRef.current = newType;
-                toast({
-                    title: "Music Type Updated!",
-                    description: `あなたのMusic Typeが変化しました！プロフィールをチェック！`,
-                    status: "info",
-                    duration: 5000,
-                    isClosable: true,
-                    position: "top",
-                });
+                if (!toast.isActive("music-type-updated")) {
+                    toast({
+                        id: "music-type-updated",
+                        title: "Music Type Updated!",
+                        description: `あなたのMusic Typeが変化しました！プロフィールをチェック！`,
+                        status: "info",
+                        duration: 5000,
+                        isClosable: true,
+                        position: "top",
+                    });
+                }
             } else if (data.total_likes === POST_MILESTONE) {
                 // 15回いいね達成時：投稿確認モーダルを表示
                 postModal.onOpen();
