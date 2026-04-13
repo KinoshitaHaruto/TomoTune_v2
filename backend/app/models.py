@@ -11,21 +11,23 @@ class User(Base):
     name = Column(String, index=True)
     spotify_id = Column(String, nullable=True, unique=True, index=True)  # Spotify連携ユーザー用
 
-    # MBTI スコア (0.0 〜 1.0)
+    # Music Type スコア (0.0 〜 1.0)
     # 初期値は 0.5
-    # V_C: ノリ(1.0) vs 静けさ(0.0)
-    score_vc = Column(Float, default=0.5) 
-    
-    # M_A: 雰囲気/Atmosphere(1.0) vs メロディ/Melody(0.0)
-    # CSVの instrumentalness が高いほど「雰囲気重視」と解釈
-    score_ma = Column(Float, default=0.5) 
+    # V_C: 明るい/Bright(1.0) vs 暗い/Dark(0.0)
+    #      valence + danceability で算出
+    score_vc = Column(Float, default=0.5)
 
-    # P_R: 情熱/Passion(1.0) vs 落ち着き/Relax(0.0)
-    score_pr = Column(Float, default=0.5) 
+    # M_A: サウンド重視/Soundscape(1.0) vs メロディー重視/Melody(0.0)
+    #      instrumentalness + (1 - speechiness) で算出（ボーカルがないほど高い）
+    score_ma = Column(Float, default=0.5)
 
-    # H_S: 生音/Human(1.0) vs 電子音/Synth(0.0)
-    # CSVの acousticness が高いほど「生音」と解釈
-    score_hs = Column(Float, default=0.5) 
+    # P_R: 激しい/Intense(1.0) vs 穏やか/Calm(0.0)
+    #      energy + tempo_norm で算出
+    score_pr = Column(Float, default=0.5)
+
+    # H_S: 生楽器/Acoustic(1.0) vs 電子音/Synth(0.0)
+    #      acousticness + liveness で算出
+    score_hs = Column(Float, default=0.5)
 
     # カルマンフィルター用: σ²（不確実性）、デフォルト0.25
     var_vc = Column(Float, default=0.25)

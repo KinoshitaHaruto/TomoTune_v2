@@ -5,12 +5,12 @@
 いいねした曲の音楽特徴量から、4つの軸それぞれのスコア（0.0〜1.0）を算出する。
 各軸を 0.5 で二値化した4文字コードがタイプ（例: `VMPS`, `CARS`）。
 
-| 軸 | 表示名 | High (1.0) | Low (0.0) |
-|---|---|---|---|
-| V_C | Energy | **V** ノリがよく明るい、テンションが上がる | **C** 穏やかで静か、落ち着いた雰囲気 |
-| M_A | Focus | **A** サウンドや世界観で聴く（声より空気感） | **M** メロディで聴く（旋律重視） |
-| P_R | Emotion | **P** 激しく情熱的、感情が昂る | **R** リラックスできる、穏やかに流れる |
-| H_S | Texture | **H** 生楽器・アコースティックな温かみ | **S** 電子音・シンセサイザーの洗練された音 |
+| 軸名 | Low (0.0) | High (1.0) |
+|---|---|---|
+| **Mood** | **C** — Cold. ダークでメランコリック| **V** — Vivid. 明るくポジティブ|
+| **Sound** | **M** — Melody. 歌・メロディ重視| **A** — Atmospheric. 楽器全体のサウンドや空気感重視 |
+| **Intensity** | **R** — Relaxed. 穏やかで落ち着いている| **P** — Passionate. 激しくエネルギッシュ|
+| **Texture** | **S** — Synth. 電子サウンド| **H** — Human. 生楽器・アコースティックサウンド |
 
 ---
 
@@ -87,9 +87,9 @@ audio features から各軸の観測値 z を計算する。
 
 | 軸 | 計算式 |
 |---|---|
-| V_C (Energy) | `0.7 × valence + 0.3 × danceability` |
-| P_R (Emotion) | `0.7 × energy + 0.3 × clamp((tempo - 60) / 140, 0, 1)` |
-| M_A (Focus) | `instrumentalness` |
+| V_C (Mood) | `0.7 × valence + 0.3 × danceability` |
+| M_A (Vocals) | `0.7 × instrumentalness + 0.3 × (1 - speechiness)` |
+| P_R (Intensity) | `0.7 × energy + 0.3 × clamp((tempo - 60) / 140, 0, 1)` |
 | H_S (Texture) | `0.7 × acousticness + 0.3 × liveness` |
 
 ---

@@ -21,15 +21,20 @@ def _observation(features: dict) -> tuple[float, float, float, float]:
     energy           = _get(features, "energy",           0.5)
     tempo            = _get(features, "tempo",            120.0)
     instrumentalness = _get(features, "instrumentalness", 0.0)
+    speechiness      = _get(features, "speechiness",      0.05)
     acousticness     = _get(features, "acousticness",     0.0)
     liveness         = _get(features, "liveness",         0.1)
 
     tempo_norm = max(0.0, min(1.0, (tempo - 60) / 140))
 
+    # V_C: 曲の明るさ（valence = 感情的なポジティブさ、danceability で補佐）
     z_vc = 0.7 * valence + 0.3 * danceability
+    # M_A: ボーカルの存在感（instrumentalness 高 = ボーカルなし = サウンド重視(A)側）
+    #      speechiness が低いほどボーカルなし寄りなので (1 - speechiness) で補佐
+    z_ma = 0.7 * instrumentalness + 0.3 * (1.0 - speechiness)
+    # P_R: 曲の激しさ（energy = 知覚的な激しさ、tempo で補佐）
     z_pr = 0.7 * energy  + 0.3 * tempo_norm
-    z_ma = instrumentalness
-    # liveness（ライブ感）を混ぜることで acousticness=0 の曲でも軸が動く余地を作る
+    # H_S: 生楽器 vs 電子音（acousticness = 生音らしさ、liveness で補佐）
     z_hs = 0.7 * acousticness + 0.3 * liveness
 
     return z_vc, z_ma, z_pr, z_hs
