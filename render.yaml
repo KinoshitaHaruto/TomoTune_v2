@@ -1,18 +1,24 @@
 services:
   - type: web
-    name: tomoTune
+    name: tomotune-backend
     env: python
     plan: free
-    buildCommand: |
-      pip install -r backend/requirements.txt &&
-      cd frontend &&
-      npm install &&
-      npm run build
-    startCommand: |
-      cd backend &&
-      if [ ! -f "tomoTune.db" ]; then python init_db.py; fi &&
-      python -m uvicorn main:app --host 0.0.0.0 --port $PORT
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: bash start.sh
+    healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
-
+        value: "3.11.0"
+      - key: DATABASE_URL
+        sync: false   # Supabase の接続文字列を Render ダッシュボードで手動設定
+      - key: ALLOWED_ORIGINS
+        sync: false   # 例: https://tomo-tune.vercel.app
+      - key: SPOTIFY_CLIENT_ID
+        sync: false
+      - key: SPOTIFY_CLIENT_SECRET
+        sync: false
+      - key: SPOTIFY_REDIRECT_URI
+        sync: false   # 例: https://tomotune-backend.onrender.com/api/spotify/callback
+      - key: FRONTEND_URL
+        sync: false   # 例: https://tomo-tune.vercel.app
