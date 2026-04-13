@@ -16,6 +16,26 @@ def get_song_by_id(db: Session, song_id: int):
     """IDで曲を探す"""
     return db.query(Song).filter(Song.id == song_id).first()
 
+def get_or_create_song_from_spotify(
+    db: Session, track_id: str, title: str, artist: str,
+    spotify_url: str, album_image: Optional[str]
+) -> Song:
+    """Spotify曲をDBに保存（同じtrack_idがあれば既存を返す）"""
+    song = db.query(Song).filter(Song.spotify_track_id == track_id).first()
+    if song:
+        return song
+    new_song = Song(
+        title=title,
+        artist=artist,
+        url=spotify_url,
+        spotify_track_id=track_id,
+        album_image=album_image,
+    )
+    db.add(new_song)
+    db.commit()
+    db.refresh(new_song)
+    return new_song
+
 # --- ユーザーの操作 ---
 # 名前からユーザーを探す
 def get_user_by_name(db: Session, name: str):
@@ -25,14 +45,17 @@ def get_user_by_name(db: Session, name: str):
 def get_user_by_id(db: Session, user_id: str):
     return db.query(User).filter(User.id == user_id).first()
 
+# Spotify IDからユーザーを探す
+def get_user_by_spotify_id(db: Session, spotify_id: str):
+    return db.query(User).filter(User.spotify_id == spotify_id).first()
+
 # 新しいユーザーを登録する
-def create_user(db: Session, name: str):
-    # UUID4 (ランダムなID) を生成して文字列にする
+def create_user(db: Session, name: str, spotify_id: str = None):
     new_id = str(uuid.uuid4())
-    
     new_user = User(
         id=new_id,
         name=name,
+        spotify_id=spotify_id,
         music_type_code=None
     )
     db.add(new_user)
@@ -50,12 +73,12 @@ def get_test_user(db: Session):
 
 # --- ❤️の操作 ---
 
-def create_like(db: Session, user_id: str, song_id: int):
-    """ハートログをDBに保存する"""
+def create_like(db: Session, user_id: str, song_id: int, observation_source: str | None = None):
     new_like = LikeLog(
         user_id=user_id,
         song_id=song_id,
-        timestamp=datetime.now()
+        timestamp=datetime.now(),
+        observation_source=observation_source,
     )
     db.add(new_like)
     db.commit()

@@ -6,11 +6,22 @@ class LoginRequest(BaseModel):
 class LikeRequest(BaseModel):
     song_id: int
     user_id: str
+    access_token: str | None = None       # ジャンルフォールバック用
+    spotify_artist_id: str | None = None  # ジャンルフォールバック用
 
 class PostCreateRequest(BaseModel):
     user_id: str
     song_id: int
     comment: str
+
+class SpotifyPostCreateRequest(BaseModel):
+    user_id: str
+    comment: str
+    spotify_track_id: str
+    title: str
+    artist: str
+    spotify_url: str
+    album_image: str | None = None
 
 class CommentCreateRequest(BaseModel):
     user_id: str
@@ -29,3 +40,13 @@ class DiagnosisRequest(BaseModel):
     score_ma: float
     score_pr: float
     score_hs: float
+
+class SpotifySongRegisterRequest(BaseModel):
+    spotify_track_id: str
+    title: str
+    artist: str
+    spotify_url: str
+    album_image: str | None = None
+
+class UpdateNameRequest(BaseModel):
+    name: str

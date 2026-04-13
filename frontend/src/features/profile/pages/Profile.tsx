@@ -32,11 +32,14 @@ import { FiEdit2, FiCheck } from 'react-icons/fi'
 import { QRCodeSVG } from 'qrcode.react'
 import { MusicTypeCard } from '../components/MusicTypeCard'
 import { useUser } from '../../../contexts/UserContext'
+import { useSpotify } from '../../../contexts/SpotifyContext'
 import { API_BASE } from '../../../config'
 import { User } from '../../../types'
 
 function Profile() {
   const [userName, setUserName] = useState('')
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [editingName, setEditingName] = useState('')
   const [userId, setUserId] = useState('')
   const [followers, setFollowers] = useState(0)
   const [following, setFollowing] = useState(0)
@@ -49,6 +52,7 @@ function Profile() {
   const location = useLocation()
   const toast = useToast()
   const { user, logout, refreshUser } = useUser()
+  const { isConnected: isSpotifyConnected, isPremium, login: spotifyLogin, logout: spotifyLogout } = useSpotify()
   const { userId: paramUserId } = useParams()
   const [profileUser, setProfileUser] = useState<User | null>(null)
   const [isLoadingProfile, setIsLoadingProfile] = useState(false)
@@ -124,6 +128,30 @@ function Profile() {
       }
     }
   }, [targetUserId, isSelf])
+
+  const handleSaveName = async () => {
+    if (!editingName.trim()) {
+      toast({ title: '名前を入力してください', status: 'warning' })
+      return
+    }
+    if (!userId) return
+    try {
+      const res = await fetch(`${API_BASE}/users/${userId}/name`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editingName.trim() }),
+      })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setUserName(data.name)
+      localStorage.setItem('tomo_user_name', data.name)
+      await refreshUser()
+      setIsEditingName(false)
+      toast({ title: '名前を変更しました', status: 'success' })
+    } catch {
+      toast({ title: '名前の変更に失敗しました', status: 'error' })
+    }
+  }
 
   const handleLogout = () => {
     logout()
@@ -248,9 +276,36 @@ function Profile() {
             </Box>
 
             <VStack align="start" spacing={2} flex={1}>
-              <Heading size="md" color="gray.800">
-                {userName}
-              </Heading>
+              {isSelf && isEditingName ? (
+                <HStack spacing={2}>
+                  <Input
+                    value={editingName}
+                    onChange={(e) => setEditingName(e.target.value)}
+                    size="sm"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveName()
+                      if (e.key === 'Escape') setIsEditingName(false)
+                    }}
+                  />
+                  <IconButton aria-label="保存" icon={<FiCheck />} size="sm" colorScheme="green" onClick={handleSaveName} />
+                  <IconButton aria-label="キャンセル" icon={<FiEdit2 />} size="sm" variant="ghost" onClick={() => setIsEditingName(false)} />
+                </HStack>
+              ) : (
+                <HStack spacing={2}>
+                  <Heading size="md" color="gray.800">{userName}</Heading>
+                  {isSelf && (
+                    <IconButton
+                      aria-label="名前を編集"
+                      icon={<FiEdit2 />}
+                      size="xs"
+                      variant="ghost"
+                      color="gray.400"
+                      onClick={() => { setEditingName(userName); setIsEditingName(true) }}
+                    />
+                  )}
+                </HStack>
+              )}
               <HStack spacing={4} fontSize="sm">
                 <Text color="gray.600">
                   フォロワー数： <strong>{followers}</strong>
@@ -396,6 +451,57 @@ function Profile() {
                     タグがありません。編集ボタンから追加してみましょう。
                   </Text>
                 )}
+              </VStack>
+            )}
+          </VStack>
+        </Box>
+      )}
+
+      <Divider />
+
+      {isSelf && (
+        <Box
+          width="100%"
+          bg="white"
+          p={6}
+          borderRadius="lg"
+          boxShadow="sm"
+          border="1px solid"
+          borderColor="gray.200"
+        >
+          <VStack spacing={4} align="stretch" width="100%">
+            <Heading size="md" color="gray.700">
+              Spotify連携
+            </Heading>
+            {isSpotifyConnected ? (
+              <VStack spacing={3} align="stretch">
+                <HStack spacing={2}>
+                  <Text fontSize="sm" color="gray.700">連携中</Text>
+                  <Badge colorScheme={isPremium ? 'green' : 'gray'}>
+                    {isPremium ? 'Premium' : 'Free'}
+                  </Badge>
+                </HStack>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  colorScheme="red"
+                  onClick={spotifyLogout}
+                >
+                  連携解除
+                </Button>
+              </VStack>
+            ) : (
+              <VStack spacing={2} align="stretch">
+                <Text fontSize="sm" color="gray.500">
+                  Spotifyと連携すると楽曲の検索・再生ができます。
+                </Text>
+                <Button
+                  size="sm"
+                  colorScheme="green"
+                  onClick={spotifyLogin}
+                >
+                  Spotifyと連携する
+                </Button>
               </VStack>
             )}
           </VStack>

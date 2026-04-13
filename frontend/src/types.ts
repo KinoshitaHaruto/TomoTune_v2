@@ -32,7 +32,21 @@ export interface Song {
   title: string;
   artist: string;
   url: string;
-  parameters?: string; 
+  parameters?: string;
+  spotify_track_id?: string | null;
+  album_image?: string | null;
+}
+
+export interface SpotifyTrack {
+  id: string;
+  title: string;
+  artist: string;
+  artist_id: string | null;
+  album: string;
+  album_image: string | null;
+  spotify_url: string;
+  duration_ms: number;
+  preview_url: string | null;
 }
 
 export interface Comment {

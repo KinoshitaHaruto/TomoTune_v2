@@ -45,29 +45,29 @@ function Survey() {
   }, [user, isUserLoading, navigate])
 
   const questions = [
-    // V vs C
-    { id: 1, text: "定期的に新しい友人を作っている。", type: "V_C", side: "V" },
-    { id: 2, text: "単純明快なアイデアよりも、複雑で新奇なアイデアのほうがワクワクする。", type: "V_C", side: "V" },
-    { id: 3, text: "BGMにはテンポ感のある曲を選びがちだ。", type: "V_C", side: "V" },
-    // M vs A
+    // V vs C（明るさ）
+    { id: 1, text: "明るくポジティブな雰囲気の曲が好きだ。", type: "V_C", side: "V" },
+    { id: 2, text: "メランコリックで内省的な曲をよく聴く。", type: "V_C", side: "C" },
+    { id: 3, text: "アップテンポで元気が出る曲をよく選ぶ。", type: "V_C", side: "V" },
+    // M vs A（聴き方）
     { id: 4, text: "曲の良さは、メロディの良さで決まることが多い。", type: "M_A", side: "M" },
-    { id: 5, text: "音楽に世界観やストーリー性を重視する。", type: "M_A", side: "A" },
+    { id: 5, text: "メロディよりも、楽器全体のサウンドや空気感で曲を聴く。", type: "M_A", side: "A" },
     { id: 6, text: "曲単体より、アルバム全体の雰囲気のほうが気になる。", type: "M_A", side: "A" },
-    // P vs R
-    { id: 7, text: "曲を聴くとき、まず「どう作っているのか」が気になる。", type: "P_R", side: "P" },
-    { id: 8, text: "ボーカルの感情が乗っている曲に弱い。", type: "P_R", side: "R" },
-    { id: 9, text: "同じ曲でも、歌声の\"表現\"で評価が大きく変わる。", type: "P_R", side: "R" },
-    // H vs S
+    // P vs R（激しさ）
+    { id: 7, text: "激しくエネルギッシュな曲を好んで聴く。", type: "P_R", side: "P" },
+    { id: 8, text: "ゆったりとした穏やかな曲でリラックスするのが好きだ。", type: "P_R", side: "R" },
+    { id: 9, text: "テンポが速く、音の大きい曲に惹かれる。", type: "P_R", side: "P" },
+    // H vs S（音色）
     { id: 10, text: "生楽器の温もりのある音が好きだ。", type: "H_S", side: "H" },
     { id: 11, text: "電子的な音楽やシンセサウンドに魅力を感じる。", type: "H_S", side: "S" },
     { id: 12, text: "生演奏より電子的なアレンジのほうが集中できる。", type: "H_S", side: "S" },
   ]
 
   const groupedQuestions = {
-    "V（ノリ）↔ C（静けさ）": questions.slice(0, 3),
-    "M（メロディ）↔ A（世界観）": questions.slice(3, 6),
-    "P（技術）↔ R（感情）": questions.slice(6, 9),
-    "H（生音）↔ S（電子音）": questions.slice(9, 12),
+    "明るさ（Dark ↔ Bright）": questions.slice(0, 3),
+    "聴き方（Melody ↔ Soundscape）": questions.slice(3, 6),
+    "激しさ（Calm ↔ Intense）": questions.slice(6, 9),
+    "音色（Synth ↔ Acoustic）": questions.slice(9, 12),
   }
 
   const handleAnswer = (questionId: number, value: number) => {
@@ -84,10 +84,10 @@ function Survey() {
       const answer = answers[q.id] || 4 // デフォルト4
       const score = answer - 4 // -3 ~ +3
 
-      if (q.type === "V_C") rawScores.V_C += q.side === "V" ? score : -score
-      if (q.type === "M_A") rawScores.M_A += q.side === "M" ? -score : score // M=0.0側
-      if (q.type === "P_R") rawScores.P_R += q.side === "P" ? score : -score
-      if (q.type === "H_S") rawScores.H_S += q.side === "H" ? -score : score // H=1.0側
+      if (q.type === "V_C") rawScores.V_C += q.side === "V" ? score : -score  // V=1.0(Bright)
+      if (q.type === "M_A") rawScores.M_A += q.side === "M" ? -score : score  // M=0.0(Melody), A=1.0(Soundscape)
+      if (q.type === "P_R") rawScores.P_R += q.side === "P" ? score : -score  // P=1.0(Intense)
+      if (q.type === "H_S") rawScores.H_S += q.side === "H" ? score : -score  // H=1.0(Acoustic)
     })
 
     // -9〜+9 を 0.0〜1.0 に正規化する関数

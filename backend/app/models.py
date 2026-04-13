@@ -9,22 +9,34 @@ class User(Base):
 
     id = Column(String, primary_key=True, index=True)   # UUIDを使うのでString型
     name = Column(String, index=True)
+    spotify_id = Column(String, nullable=True, unique=True, index=True)  # Spotify連携ユーザー用
 
-    # MBTI スコア (0.0 〜 1.0)
+    # Music Type スコア (0.0 〜 1.0)
     # 初期値は 0.5
-    # V_C: ノリ(1.0) vs 静けさ(0.0)
-    score_vc = Column(Float, default=0.5) 
-    
-    # M_A: 雰囲気/Atmosphere(1.0) vs メロディ/Melody(0.0)
-    # CSVの instrumentalness が高いほど「雰囲気重視」と解釈
-    score_ma = Column(Float, default=0.5) 
+    # V_C: 明るい/Bright(1.0) vs 暗い/Dark(0.0)
+    #      valence + danceability で算出
+    score_vc = Column(Float, default=0.5)
 
-    # P_R: 情熱/Passion(1.0) vs 落ち着き/Relax(0.0)
-    score_pr = Column(Float, default=0.5) 
+    # M_A: サウンド重視/Soundscape(1.0) vs メロディー重視/Melody(0.0)
+    #      instrumentalness + (1 - speechiness) で算出（ボーカルがないほど高い）
+    score_ma = Column(Float, default=0.5)
 
-    # H_S: 生音/Human(1.0) vs 電子音/Synth(0.0)
-    # CSVの acousticness が高いほど「生音」と解釈
-    score_hs = Column(Float, default=0.5) 
+    # P_R: 激しい/Intense(1.0) vs 穏やか/Calm(0.0)
+    #      energy + tempo_norm で算出
+    score_pr = Column(Float, default=0.5)
+
+    # H_S: 生楽器/Acoustic(1.0) vs 電子音/Synth(0.0)
+    #      acousticness + liveness で算出
+    score_hs = Column(Float, default=0.5)
+
+    # カルマンフィルター用: σ²（不確実性）、デフォルト0.25
+    var_vc = Column(Float, default=0.25)
+    var_ma = Column(Float, default=0.25)
+    var_pr = Column(Float, default=0.25)
+    var_hs = Column(Float, default=0.25)
+
+    # 時系列減衰の起点（最後にいいねした日時）
+    last_liked_at = Column(DateTime, nullable=True)
 
     # 診断結果のタイプコード
     music_type_code = Column(String, ForeignKey("music_types.code"), nullable=True)
@@ -64,10 +76,14 @@ class Song(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     artist = Column(String)
-    url = Column(String) # mp3ファイルのパス
+    url = Column(String, nullable=True) # mp3ファイルのパス（Spotify曲はnull可）
 
     # パラメータを保存する列 (JSON文字列として入れる)
     parameters = Column(String, nullable=True)
+
+    # Spotify連携用
+    spotify_track_id = Column(String, nullable=True, unique=True, index=True)
+    album_image = Column(String, nullable=True)
 
     # リレーション: 曲もたくさんの「いいねログ」を持つ
     like_logs = relationship("LikeLog", back_populates="song")
@@ -88,6 +104,9 @@ class LikeLog(Base):
     
     # いつ (初期値は現在時刻)
     timestamp = Column(DateTime, default=datetime.now)
+
+    # 特徴量取得元: "reccobeats" / "genre_fallback" / "local" / "no_update"
+    observation_source = Column(String, nullable=True)
 
     # リレーション設定
     user = relationship("User", back_populates="like_logs")

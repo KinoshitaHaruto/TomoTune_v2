@@ -33,7 +33,40 @@ def create_post(req: schemas.PostCreateRequest, db: Session = Depends(get_db)):
             "id": song.id,
             "title": song.title,
             "artist": song.artist,
-            "url": song.url,
+            "url": song.url or "",
+            "spotify_track_id": song.spotify_track_id,
+            "album_image": song.album_image,
+        },
+    }
+
+@router.post("/posts/from-spotify", status_code=status.HTTP_201_CREATED)
+def create_post_from_spotify(req: schemas.SpotifyPostCreateRequest, db: Session = Depends(get_db)):
+    user = crud.get_user_by_id(db, req.user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    song = crud.get_or_create_song_from_spotify(
+        db, req.spotify_track_id, req.title, req.artist, req.spotify_url, req.album_image
+    )
+
+    post = crud.create_post(db, req.user_id, song.id, req.comment)
+    logger.info(f"📝 New Spotify Post: user={user.name}, track={req.title}")
+
+    return {
+        "id": post.id,
+        "comment": post.comment,
+        "created_at": post.created_at.isoformat(),
+        "user": {
+            "id": user.id,
+            "name": user.name,
+        },
+        "song": {
+            "id": song.id,
+            "title": song.title,
+            "artist": song.artist,
+            "url": song.url or "",
+            "spotify_track_id": song.spotify_track_id,
+            "album_image": song.album_image,
         },
     }
 
@@ -88,7 +121,9 @@ def list_posts(limit: int = 50, db: Session = Depends(get_db)):
                 "id": song.id,
                 "title": song.title,
                 "artist": song.artist,
-                "url": song.url,
+                "url": song.url or "",
+                "spotify_track_id": song.spotify_track_id,
+                "album_image": song.album_image,
             } if song else None,
             "comments": comments_payload,
         })
