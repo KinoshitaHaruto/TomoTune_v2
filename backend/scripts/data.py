@@ -84,11 +84,16 @@ def scan_static_files():
                 artist = "Unknown Artist"
                 params = {} 
 
+            # R2_PUBLIC_URL が設定されている場合はR2のURLを使う（本番）
+            # 未設定の場合はローカルの /static/ パスを使う（開発）
+            r2_base = os.environ.get("R2_PUBLIC_URL", "").rstrip("/")
+            url = f"{r2_base}/{filename_clean}" if r2_base else f"/static/{filename_clean}"
+
             song = {
                 "id": i,
                 "title": title,
                 "artist": artist,
-                "url": f"/static/{filename_clean}",
+                "url": url,
                 # 辞書をJSON文字列に変換して保存
                 "parameters": json.dumps(params)
             }

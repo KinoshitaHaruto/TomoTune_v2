@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     # 例: "https://tomo-tune.vercel.app,https://www.tomotune.com"
     allowed_origins: str = ""
 
+    # Cloudflare R2 公開URL（MP3配信用）
+    # 例: "https://pub-xxxx.r2.dev" または独自ドメイン
+    # 未設定の場合はローカルの /static/ から配信
+    r2_public_url: str = ""
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
     def get_allowed_origins(self) -> list[str]:
