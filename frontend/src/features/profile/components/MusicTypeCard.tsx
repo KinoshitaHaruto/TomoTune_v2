@@ -150,25 +150,25 @@ export const MusicTypeCard = ({ user: userOverride }: { user?: User | null }) =>
             </Heading>
             <SimpleGrid columns={1} spacing={6}>
               <ScoreBar
-                label="Energy"
+                label="Mood"
                 value={VC}
                 color="cyan"
-                leftLabel="Chill"
-                rightLabel="Vibe"
+                leftLabel="Cold"
+                rightLabel="Vivid"
               />
               <ScoreBar
-                label="Focus"
+                label="Sound"
                 value={MA}
                 color="purple"
                 leftLabel="Melody"
-                rightLabel="Atmosphere"
+                rightLabel="Atmospheric"
               />
               <ScoreBar
-                label="Emotion"
+                label="Intensity"
                 value={PR}
                 color="red"
-                leftLabel="Precision"
-                rightLabel="Romance"
+                leftLabel="Relaxed"
+                rightLabel="Passionate"
               />
               <ScoreBar
                 label="Texture"

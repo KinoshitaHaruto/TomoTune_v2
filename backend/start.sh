@@ -1,14 +1,16 @@
 #!/bin/bash
-# Render用の起動スクリプト
+set -e
 
-# データベースの初期化（初回起動時のみ）
-if [ ! -f "tomoTune.db" ]; then
-    echo "データベースを初期化しています..."
-    python init_db.py
-fi
+echo "Running database migrations..."
+alembic upgrade head
 
-# アプリケーションの起動
-# PORT環境変数が設定されている場合はそれを使用、なければ8000を使用
+echo "Seeding initial data..."
+python -m scripts.init_db
+
+echo "Starting server..."
 PORT=${PORT:-8000}
-python -m uvicorn main:app --host 0.0.0.0 --port $PORT
-
+exec gunicorn app.main:app \
+  --workers 2 \
+  --worker-class uvicorn.workers.UvicornWorker \
+  --bind "0.0.0.0:${PORT}" \
+  --timeout 120

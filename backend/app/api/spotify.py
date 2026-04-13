@@ -1,4 +1,3 @@
-import os
 import traceback
 import urllib.parse
 import httpx
@@ -6,15 +5,16 @@ from fastapi import APIRouter, HTTPException, Query, Depends
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.database import get_db
 from app import crud
 
 router = APIRouter()
 
-SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID", "")
-SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET", "")
-SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI", "http://127.0.0.1:8000/api/spotify/callback")
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+SPOTIFY_CLIENT_ID = settings.spotify_client_id
+SPOTIFY_CLIENT_SECRET = settings.spotify_client_secret
+SPOTIFY_REDIRECT_URI = settings.spotify_redirect_uri
+FRONTEND_URL = settings.frontend_url
 TOKEN_URL = "https://accounts.spotify.com/api/token"
 SEARCH_URL = "https://api.spotify.com/v1/search"
 AUTH_URL = "https://accounts.spotify.com/authorize"
@@ -139,6 +139,7 @@ def _format_track(track: dict) -> dict:
         "id": track["id"],
         "title": track["name"],
         "artist": ", ".join(a["name"] for a in track["artists"]),
+        "artist_id": track["artists"][0]["id"] if track["artists"] else None,
         "album": track["album"]["name"],
         "album_image": track["album"]["images"][0]["url"] if track["album"]["images"] else None,
         "spotify_url": track["external_urls"]["spotify"],

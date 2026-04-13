@@ -41,6 +41,7 @@ export interface SpotifyTrack {
   id: string;
   title: string;
   artist: string;
+  artist_id: string | null;
   album: string;
   album_image: string | null;
   spotify_url: string;

@@ -29,6 +29,7 @@ interface SpotifyContextType {
   currentTrackId: string | null
   isPlaying: boolean
   playTrack: (trackId: string) => Promise<void>
+  stopTrack: () => void
 }
 
 const SpotifyContext = createContext<SpotifyContextType>({
@@ -42,6 +43,7 @@ const SpotifyContext = createContext<SpotifyContextType>({
   currentTrackId: null,
   isPlaying: false,
   playTrack: async () => {},
+  stopTrack: () => {},
 })
 
 export const SpotifyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -238,6 +240,7 @@ export const SpotifyProvider: React.FC<{ children: React.ReactNode }> = ({ child
       currentTrackId,
       isPlaying,
       playTrack,
+      stopTrack: () => { playerRef.current?.pause() },
     }}>
       {children}
     </SpotifyContext.Provider>
