@@ -20,6 +20,15 @@ def seed_database():
     print("初期データ投入を開始...")
     db = SessionLocal()
 
+    if os.environ.get("DEBUG_SONGS"):
+        print(f"[DEBUG] CSVから生成した曲数: {len(songs)}")
+        for s in songs[:3]:
+            print(f"[DEBUG] CSV曲サンプル: title={s['title']} url={s['url']}")
+        db_songs = db.query(Song).all()
+        print(f"[DEBUG] DB内の曲数: {len(db_songs)}")
+        for s in db_songs[:3]:
+            print(f"[DEBUG] DB曲サンプル: title={s.title} url={s.url}")
+
     try:
         # --- Music Type の登録 ---
         for t in music_types:
