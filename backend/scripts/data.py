@@ -29,79 +29,51 @@ def load_song_metadata():
             metadata[filename] = row
     return metadata
 
-# staticフォルダ内の音楽ファイルをスキャンして曲リストを作成
-def scan_static_files():
-    """staticフォルダとCSVを照らし合わせて曲リストを作る"""
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    static_dir = os.path.join(base_dir, "static")
-    songs = []
-    
-    # CSVデータを読み込む
+def build_songs_from_csv():
+    """CSVから曲リストを作る（本番環境でもMP3ファイルなしで動作する）"""
     metadata_map = load_song_metadata()
-    
+
     if not metadata_map:
         print("警告: CSVから曲情報を読み込めませんでした。")
-
-    if not os.path.exists(static_dir):
-        print(f"警告: {static_dir} が見つかりません。")
         return []
 
-    # デバッグ用: CSVに含まれるファイル名を表示
-    csv_filenames = set(metadata_map.keys())
-    print(f"CSVに登録されている曲数: {len(csv_filenames)}")
+    print(f"CSVに登録されている曲数: {len(metadata_map)}")
 
-    # ファイル名順に処理
-    for i, filename in enumerate(sorted(os.listdir(static_dir)), start=1):
-        if filename.endswith(".mp3"):
-            filename_clean = unicodedata.normalize('NFC', filename.strip())
-            
-            # CSVに情報がある場合 -> それを使う
-            if filename_clean in metadata_map:
-                data = metadata_map[filename_clean]
-                title = data["title"].strip() if data.get("title") else filename_clean.replace(".mp3", "")
-                artist = data["artist"].strip() if data.get("artist") else "Unknown Artist"
-                
-                # パラメータを辞書としてまとめる（文字列を数値に変換）
-                params = {
-                    "acousticness": float(data.get("acousticness", 0) or 0),
-                    "danceability": float(data.get("danceability", 0) or 0),
-                    "energy": float(data.get("energy", 0) or 0),
-                    "instrumentalness": float(data.get("instrumentalness", 0) or 0),
-                    "liveness": float(data.get("liveness", 0) or 0),
-                    "loudness": float(data.get("loudness", 0) or 0),
-                    "speechiness": float(data.get("speechiness", 0) or 0),
-                    "valence": float(data.get("valence", 0) or 0),
-                    "tempo": float(data.get("tempo", 0) or 0),
-                    "key": int(data.get("key", 0) or 0),
-                    "mode": int(data.get("mode", 0) or 0),
-                    "time_signature": int(data.get("time_signature", 4) or 4),
-                }
-            
-            # CSVにない場合 -> ファイル名から推測
-            else:
-                print(f"警告: CSVに存在しないファイルが見つかりました: {filename_clean}")
-                title = filename_clean.replace(".mp3", "").replace("_", " ")
-                artist = "Unknown Artist"
-                params = {} 
+    r2_base = os.environ.get("R2_PUBLIC_URL", "").rstrip("/")
+    songs = []
 
-            # R2_PUBLIC_URL が設定されている場合はR2のURLを使う（本番）
-            # 未設定の場合はローカルの /static/ パスを使う（開発）
-            r2_base = os.environ.get("R2_PUBLIC_URL", "").rstrip("/")
-            url = f"{r2_base}/{filename_clean}" if r2_base else f"/static/{filename_clean}"
+    for i, (filename_clean, data) in enumerate(sorted(metadata_map.items()), start=1):
+        title = data["title"].strip() if data.get("title") else filename_clean.replace(".mp3", "")
+        artist = data["artist"].strip() if data.get("artist") else "Unknown Artist"
 
-            song = {
-                "id": i,
-                "title": title,
-                "artist": artist,
-                "url": url,
-                # 辞書をJSON文字列に変換して保存
-                "parameters": json.dumps(params)
-            }
-            songs.append(song)
-    
+        params = {
+            "acousticness": float(data.get("acousticness", 0) or 0),
+            "danceability": float(data.get("danceability", 0) or 0),
+            "energy": float(data.get("energy", 0) or 0),
+            "instrumentalness": float(data.get("instrumentalness", 0) or 0),
+            "liveness": float(data.get("liveness", 0) or 0),
+            "loudness": float(data.get("loudness", 0) or 0),
+            "speechiness": float(data.get("speechiness", 0) or 0),
+            "valence": float(data.get("valence", 0) or 0),
+            "tempo": float(data.get("tempo", 0) or 0),
+            "key": int(data.get("key", 0) or 0),
+            "mode": int(data.get("mode", 0) or 0),
+            "time_signature": int(data.get("time_signature", 4) or 4),
+        }
+
+        url = f"{r2_base}/{filename_clean}" if r2_base else f"/static/{filename_clean}"
+
+        songs.append({
+            "id": i,
+            "title": title,
+            "artist": artist,
+            "url": url,
+            "parameters": json.dumps(params),
+        })
+
     return songs
 
-songs = scan_static_files()
+songs = build_songs_from_csv()
 
 # --- Music Typeリスト ---
 def load_music_types():
