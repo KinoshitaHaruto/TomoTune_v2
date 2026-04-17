@@ -7,7 +7,7 @@ TomoTuneは音楽特化のSNSアプリで、音楽を通じた新たな交流体
 ## URL
 [github](https://github.com/KinoshitaHaruto/TomoTune)
 
-[TomoTune](https://tomotune.onrender.com/)
+[TomoTune](https://tomo-tune.vercel.app/)
 
 ## 使用技術
 ### バックエンド

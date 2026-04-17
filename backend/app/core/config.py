@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     # 未設定の場合はローカルの /static/ から配信
     r2_public_url: str = ""
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     def get_allowed_origins(self) -> list[str]:
         """CORS許可オリジンのリストを返す。未設定の場合は開発用ローカルURLを返す。"""

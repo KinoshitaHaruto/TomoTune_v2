@@ -43,6 +43,9 @@ def seed_database():
                     parameters=s["parameters"],
                 ))
                 print(f"曲追加: {s['title']}")
+            elif existing.url != s["url"]:
+                existing.url = s["url"]
+                print(f"曲URL更新: {s['title']} -> {s['url']}")
 
         db.commit()
         print("初期データ投入完了")
