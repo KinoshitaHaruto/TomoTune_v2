@@ -1,12 +1,7 @@
-from datetime import datetime
 import csv
-import uuid
 import json
 import os
 import unicodedata
-
-# サーバーのURL (自分のPCの住所)
-# BASE_URL = "http://127.0.0.1:8000"
 
 # --- 曲リスト ---
 

@@ -5,7 +5,6 @@
   $ cd backend
   $ python -m scripts.init_db
 """
-import os
 import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,13 +20,6 @@ def seed_database():
     db = SessionLocal()
 
     try:
-        db_songs = db.query(Song).all()
-        print(f"[DEBUG] DB内の曲数: {len(db_songs)}")
-        for s in db_songs[:3]:
-            print(f"[DEBUG] DB曲: title={s.title} url={s.url}")
-        print(f"[DEBUG] CSVから生成した曲数: {len(songs)}")
-        for s in songs[:3]:
-            print(f"[DEBUG] CSV曲: title={s['title']} url={s['url']}")
         # --- Music Type の登録 ---
         for t in music_types:
             existing = db.query(MusicType).filter(MusicType.code == t["code"]).first()
