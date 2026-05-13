@@ -74,30 +74,6 @@ const SpotifySection: React.FC = () => {
         </HStack>
       )}
 
-      {/* おすすめ曲セクション */}
-      <Box>
-        <Heading size="md" color="green.500" mb={3}>
-          {recType === 'top' ? 'あなたへのおすすめ' : '人気の曲'}
-        </Heading>
-        {recLoading ? (
-          <Box textAlign="center" py={6}>
-            <Spinner color="green.400" />
-          </Box>
-        ) : recommended.length === 0 ? (
-          <Text color="gray.500" textAlign="center" py={4}>
-            おすすめ曲を取得できませんでした
-          </Text>
-        ) : (
-          <VStack spacing={2} align="stretch">
-            {recommended.map((track) => (
-              <SpotifyMusicCard key={track.id} track={track} />
-            ))}
-          </VStack>
-        )}
-      </Box>
-
-      <Divider />
-
       {/* 検索セクション */}
       <Box>
         <Heading size="md" color="green.500" mb={3}>Spotify 検索</Heading>
@@ -140,6 +116,30 @@ const SpotifySection: React.FC = () => {
         {!searching && searchResults.length > 0 && (
           <VStack spacing={2} align="stretch">
             {searchResults.map((track) => (
+              <SpotifyMusicCard key={track.id} track={track} />
+            ))}
+          </VStack>
+        )}
+      </Box>
+
+      <Divider />
+
+      {/* おすすめ曲セクション */}
+      <Box>
+        <Heading size="md" color="green.500" mb={3}>
+          {recType === 'top' ? 'あなたへのおすすめ' : '人気の曲'}
+        </Heading>
+        {recLoading ? (
+          <Box textAlign="center" py={6}>
+            <Spinner color="green.400" />
+          </Box>
+        ) : recommended.length === 0 ? (
+          <Text color="gray.500" textAlign="center" py={4}>
+            おすすめ曲を取得できませんでした
+          </Text>
+        ) : (
+          <VStack spacing={2} align="stretch">
+            {recommended.map((track) => (
               <SpotifyMusicCard key={track.id} track={track} />
             ))}
           </VStack>

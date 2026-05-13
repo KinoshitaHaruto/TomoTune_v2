@@ -9,6 +9,11 @@ import {
   HStack,
   Switch,
   Button,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
 } from '@chakra-ui/react'
 import { FiLogIn } from 'react-icons/fi'
 import MusicCard from '../components/MusicCard'
@@ -106,6 +111,43 @@ function Music() {
           <Heading color="green.500" size="lg">音楽</Heading>
         </HStack>
         <SpotifySection />
+        <Accordion allowToggle>
+          <AccordionItem border="1px solid" borderColor="gray.200" borderRadius="md">
+            <AccordionButton
+              px={4}
+              py={3}
+              _expanded={{ bg: 'gray.50' }}
+              borderRadius="md"
+            >
+              <Box flex="1" textAlign="left" fontWeight="medium" color="gray.700">
+                ローカル楽曲
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+            <AccordionPanel pb={3} px={3}>
+              {songs.length === 0 ? (
+                <Text color="gray.500" textAlign="center" py={4}>
+                  曲が見つかりません
+                </Text>
+              ) : (
+                <VStack spacing={2} align="stretch">
+                  {songs.map((song) => (
+                    <MusicCard
+                      key={song.id}
+                      song={song}
+                      isFavorite={favoriteIds.includes(song.id)}
+                      onLikeSuccess={(total, isMilestone) =>
+                        handleLikeSuccess(song.id, total, isMilestone)
+                      }
+                      onRemoveFavorite={handleRemoveFavorite}
+                      onPlay={(s) => setActiveSong(s)}
+                    />
+                  ))}
+                </VStack>
+              )}
+            </AccordionPanel>
+          </AccordionItem>
+        </Accordion>
       </VStack>
     )
   }
